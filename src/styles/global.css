@@ -450,6 +450,13 @@
   z-index: 1;
   padding: 0 1.5rem clamp(3.5rem, 8vw, 6rem);
 }
+.artifact-band-grid {
+  max-width: var(--max-w-content);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
 .hero-artifact {
   display: flex;
   flex-direction: column;
@@ -457,6 +464,25 @@
   min-width: 0;
   max-width: 600px;
   margin: 0 auto;
+}
+.artifact-explain {
+  min-width: 0;
+  max-width: var(--max-w-prose);
+}
+@media (min-width: 1024px) {
+  .artifact-band-grid {
+    display: grid;
+    grid-template-columns: 7fr 5fr;
+    align-items: start;
+    gap: 3rem;
+  }
+  .artifact-band-grid .hero-artifact {
+    max-width: none;
+    margin: 0;
+  }
+  .artifact-band-grid .artifact-explain {
+    max-width: none;
+  }
 }
 .artifact-frame {
   position: relative;
@@ -499,14 +525,6 @@
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--color-text-muted);
-  margin: 0;
-}
-.artifact-legend {
-  text-align: left;
-  font-size: 0.78rem;
-  line-height: 1.5;
-  color: var(--color-text-secondary);
-  max-width: 46ch;
   margin: 0;
 }
 .artifact-provenance {
@@ -666,6 +684,80 @@
   color: var(--color-text-secondary);
   line-height: 1.7;
   margin: 0;
+}
+
+/* --- Artifact band explanation column (spec 9 / ch-4) --- */
+.artifact-explain-eyebrow {
+  margin: 0 0 0.75rem;
+}
+.artifact-explain-heading {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.4rem, 2.2vw, 1.75rem);
+  line-height: 1.15;
+  color: var(--color-text-primary);
+  text-wrap: balance;
+  margin: 0 0 1.75rem;
+}
+.artifact-explain .result-list {
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+/* --- Run timeline: build-time bar, no canvas --- */
+.artifact-timeline {
+  position: relative;
+  width: 100%;
+  height: 2.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.timeline-zone {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+}
+.timeline-zone-healthy {
+  background: color-mix(in srgb, green 14%, transparent);
+}
+.timeline-zone-excursion {
+  background: var(--color-bg-elevated);
+}
+.timeline-zone-lost {
+  background: color-mix(in srgb, orange 18%, transparent);
+}
+.timeline-tick {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: orange;
+  opacity: 0.7;
+}
+.timeline-labels {
+  position: relative;
+  height: 1.4em;
+  margin-top: 0.5rem;
+}
+.timeline-label {
+  position: absolute;
+  top: 0;
+  white-space: nowrap;
+}
+.timeline-label-start {
+  left: 0;
+}
+.timeline-label-end {
+  right: 0;
+}
+.timeline-label-mid {
+  transform: translateX(-50%);
+}
+@media (max-width: 480px) {
+  .timeline-label-mid {
+    display: none;
+  }
 }
 .result-provenance {
   display: block;

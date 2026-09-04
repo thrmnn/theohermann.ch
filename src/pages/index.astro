@@ -18,7 +18,13 @@ const stataMeta = JSON.parse(
   duration_s: number;
   events: number;
   events_by_detector: { tf_jump: number; covariance_spike: number; pose_divergence: number };
-  lost_window: { window: string; position_error_median_m: number; amcl_reported_sigma_median_m: number };
+  lost_window: {
+    window: string;
+    position_error_median_m: number;
+    amcl_reported_sigma_median_m: number;
+    events: number;
+  };
+  zones_s: { healthy_end_s: number; lost_start_s: number; lost_end_s: number };
 };
 const { tf_jump, covariance_spike, pose_divergence } = stataMeta.events_by_detector;
 if (tf_jump + covariance_spike + pose_divergence !== stataMeta.events) {
@@ -28,8 +34,25 @@ if (tf_jump + covariance_spike + pose_divergence !== stataMeta.events) {
 }
 const lostMetres = stataMeta.lost_window.position_error_median_m.toFixed(1);
 const lostCm = Math.round(stataMeta.lost_window.amcl_reported_sigma_median_m * 100);
+const lostEvents = stataMeta.lost_window.events;
 const artifactCaption = `${stataMeta.platform} · ${stataMeta.duration_s} s of a recorded run · ${stataMeta.events} detector events`;
-const artifactLegend = `A real robot, replayed from its own logs. Green: where it believed it was. Amber: where my detectors flagged trouble. After a floor change it was ${lostMetres} metres off while reporting ${lostCm} centimetres of uncertainty. Finding that quiet kind of failure is the work.`;
+
+const stataReplay = JSON.parse(
+  readFileSync(join(process.cwd(), 'public/data/stata-replay.json'), 'utf8'),
+) as { events: number[][] };
+
+const durationS = stataMeta.duration_s;
+const { healthy_end_s, lost_start_s, lost_end_s } = stataMeta.zones_s;
+const pct = (s: number) => Number(((s / durationS) * 100).toFixed(3));
+const healthyWidth = pct(healthy_end_s);
+const excursionLeft = pct(healthy_end_s);
+const excursionWidth = pct(lost_start_s) - pct(healthy_end_s);
+const lostLeft = pct(lost_start_s);
+const lostWidth = pct(lost_end_s) - pct(lost_start_s);
+const excursionMid = excursionLeft + excursionWidth / 2;
+const lostMid = lostLeft + lostWidth / 2;
+const eventTicks = stataReplay.events.map(([t]) => pct(t / 10));
+const timelineAriaLabel = `Timeline of the ${durationS} second replay: healthy until ${healthy_end_s} seconds, an excursion to a floor with no ground truth until ${lost_start_s} seconds, then lost and ${lostMetres} metres off until ${lost_end_s} seconds.`;
 ---
 
 <BaseLayout ogType="profile">
@@ -48,23 +71,68 @@ const artifactLegend = `A real robot, replayed from its own logs. Green: where i
   </section>
 
   <section class="artifact-band">
-    <div class="hero-artifact" data-reveal style="--reveal-d: 1;">
-      <div class="artifact-frame">
-        <canvas
-          class="favela-scrubber"
-          data-walls={`${base}/data/stata-walls.bin`}
-          data-replay={`${base}/data/stata-replay.json`}
-          aria-label="Replay of a recorded PR2 run in the MIT Stata Center: wall map, the robot's estimated path, and the moments a fault detector fired."
-        ></canvas>
-        <div class="artifact-corners" aria-hidden="true">
-          <span></span><span></span><span></span><span></span>
+    <div class="artifact-band-grid">
+      <div class="hero-artifact" data-reveal style="--reveal-d: 1;">
+        <div class="artifact-frame">
+          <canvas
+            class="favela-scrubber"
+            data-walls={`${base}/data/stata-walls.bin`}
+            data-replay={`${base}/data/stata-replay.json`}
+            aria-label="Replay of a recorded PR2 run in the MIT Stata Center: wall map, the robot's estimated path, and the moments a fault detector fired."
+          ></canvas>
+          <div class="artifact-corners" aria-hidden="true">
+            <span></span><span></span><span></span><span></span>
+          </div>
+        </div>
+        <p class="artifact-caption">{artifactCaption}</p>
+        <p class="artifact-provenance">
+          recorded data: MIT Stata Center dataset (CC BY 3.0) · detections: <a href={REPO}>ros2-localization-triage</a> · open source, every number recomputable
+        </p>
+      </div>
+      <div class="artifact-explain" data-reveal style="--reveal-d: 2;">
+        <p class="section-label artifact-explain-eyebrow">One recorded run, replayed</p>
+        <h2 class="artifact-explain-heading">A robot that was lost and did not know it.</h2>
+        <ol class="result-list">
+          <li class="result-item">
+            <span class="result-num">01</span>
+            <div class="result-body">
+              <p>
+                A real robot in a real building, replayed from its own log: the file where it writes down, many times a second, where it thinks it is. Grey: the walls. Green: where it believed it was.
+              </p>
+            </div>
+          </li>
+          <li class="result-item">
+            <span class="result-num">02</span>
+            <div class="result-body">
+              <p>
+                It rode the lift to a floor its map did not have, and came back. From then on it was {lostMetres} metres from where it thought it was, while reporting {lostCm} centimetres of doubt. The robot itself never noticed.
+              </p>
+            </div>
+          </li>
+          <li class="result-item">
+            <span class="result-num">03</span>
+            <div class="result-body">
+              <p>
+                Amber: where my detectors noticed. {lostEvents} flags in the stretch where the truth is known. They caught the transition, then went silent once the wrong pose settled. Finding that quiet kind of failure is the work.
+              </p>
+            </div>
+          </li>
+        </ol>
+        <div class="artifact-timeline" role="img" aria-label={timelineAriaLabel}>
+          <span class="timeline-zone timeline-zone-healthy" style={`left: 0%; width: ${healthyWidth}%;`}></span>
+          <span class="timeline-zone timeline-zone-excursion" style={`left: ${excursionLeft}%; width: ${excursionWidth}%;`}></span>
+          <span class="timeline-zone timeline-zone-lost" style={`left: ${lostLeft}%; width: ${lostWidth}%;`}></span>
+          {eventTicks.map((left) => (
+            <span class="timeline-tick" style={`left: ${left}%;`}></span>
+          ))}
+        </div>
+        <div class="timeline-labels">
+          <span class="artifact-caption timeline-label timeline-label-start">0 s</span>
+          <span class="artifact-caption timeline-label timeline-label-mid" style={`left: ${excursionMid}%;`}>another floor, no ground truth</span>
+          <span class="artifact-caption timeline-label timeline-label-mid" style={`left: ${lostMid}%;`}>back, {lostMetres} m off</span>
+          <span class="artifact-caption timeline-label timeline-label-end">{durationS} s</span>
         </div>
       </div>
-      <p class="artifact-caption">{artifactCaption}</p>
-      <p class="artifact-legend">{artifactLegend}</p>
-      <p class="artifact-provenance">
-        recorded data: MIT Stata Center dataset (CC BY 3.0) · detections: <a href={REPO}>ros2-localization-triage</a> · open source, every number recomputable
-      </p>
     </div>
   </section>
 
