@@ -69,7 +69,7 @@ const artifactLegend = `A real robot, replayed from its own logs. Green: where i
     <div class="mx-auto max-w-[var(--max-w-content)] px-6">
       <h2 class="section-label mb-6" data-reveal>The problem</h2>
       <p class="max-w-prose text-text-secondary leading-relaxed" data-reveal style="--reveal-d: 1;">
-        A fleet's worst localisation incidents are the quiet ones: the robot that was somewhere else while reporting centimetre confidence, the alarm that fired on a healthy machine, the failure nobody can reproduce from the bag. Stock Nav2 ships AMCL with kidnap recovery switched off, so a displaced robot has no mechanism to conclude it is lost. Someone has to notice, and the bag is usually all they have.
+        A fleet's worst localisation incidents are the quiet ones: the robot that was somewhere else while reporting centimetre confidence, the alarm that fired on a healthy machine, the failure nobody can reproduce from the bag, which is the robot's own recording. Nav2, the ROS 2 navigation stack, ships its localiser AMCL with kidnap recovery switched off, so a displaced robot has no mechanism to conclude it is lost. Someone has to notice, and the bag is usually all they have.
       </p>
     </div>
   </section>
@@ -82,7 +82,7 @@ const artifactLegend = `A real robot, replayed from its own logs. Green: where i
           <span class="result-num">01</span>
           <div class="result-body">
             <p>
-              The same frozen thresholds meant opposite things on different robots. 9 to 36 flags per robot-hour on Cartographer backpack recordings, every one a real dropout; 1880 on a MiR100 warehouse AGV, none of them look real. A threshold is not a property of a failure. It is a property of the machine it was measured on.
+              The same frozen thresholds did not transfer. The covariance threshold, set on a simulated TurtleBot3, sits inside a real Tiago's healthy yaw noise and fired five times on a recording with nothing wrong, graded wrong in the case log. A threshold is a property of the machine it was measured on.
             </p>
             <span class="result-provenance">Source <a href={`${REPO}/blob/main/docs/transferability.md`}>docs/transferability.md</a></span>
           </div>
@@ -91,7 +91,7 @@ const artifactLegend = `A real robot, replayed from its own logs. Green: where i
           <span class="result-num">02</span>
           <div class="result-body">
             <p>
-              Against labels somebody else wrote, years before this tool existed: 16 of 16 gaps found, nothing else flagged.
+              Against labels somebody else wrote, years before this tool existed: 16 of 16 gaps found, nothing else flagged. The labels give how many gaps each recording has, not when, so the match is a match of counts, one for one.
             </p>
             <figure class="result-figure">
               <img
@@ -133,7 +133,7 @@ const artifactLegend = `A real robot, replayed from its own logs. Green: where i
     <div class="mx-auto max-w-[var(--max-w-content)] px-6">
       <h2 class="section-label mb-6" data-reveal>What this does not claim</h2>
       <p class="max-w-prose text-text-secondary leading-relaxed" data-reveal style="--reveal-d: 1;">
-        These are localisation-layer detectors, not an intrusion detection system and not a product. I recorded, ran and graded everything myself, under a rubric committed before any real result existed; the case log carries two verdicts of wrong and three of partial. Nothing in the stock config is calibrated for your robot.
+        These are localisation-layer detectors, not an intrusion detection system and not a product. I recorded, ran and self-graded everything, under a rubric committed before any real result existed; the case log carries two verdicts of wrong and three of partial across fifteen graded rows. Nothing in the stock config is calibrated for your robot.
       </p>
     </div>
   </section>
