@@ -1,0 +1,720 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   Self-hosted variable font (Space Grotesk, latin + latin-ext)
+   One woff2 covers all weights via the wght axis. Used site-wide for
+   both display and body text.
+   ========================================================================== */
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('/fonts/space-grotesk-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('/fonts/space-grotesk-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('/fonts/jetbrains-mono-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* ==========================================================================
+   Design System — Théo Alessandro Hermann
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Color tokens — dynamic (overridable by theme switching)
+   `@theme inline` tells Tailwind to generate utilities that reference CSS
+   custom properties instead of inlining static values, so runtime overrides
+   via [data-theme] / prefers-color-scheme actually take effect.
+   -------------------------------------------------------------------------- */
+@theme inline {
+  /* Background layers */
+  --color-bg-primary: var(--bg-primary);
+  --color-bg-secondary: var(--bg-secondary);
+  --color-bg-elevated: var(--bg-elevated);
+  --color-bg-accent: var(--bg-accent);
+
+  /* Text hierarchy */
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+
+  /* Accent */
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-soft: var(--accent-soft);
+
+  /* Links */
+  --color-link: var(--link);
+  --color-link-hover: var(--link-hover);
+
+  /* Borders */
+  --color-border: var(--border);
+  --color-border-hover: var(--border-hover);
+}
+
+/* --------------------------------------------------------------------------
+   Static design tokens — fonts, spacing, layout (not theme-dependent)
+   -------------------------------------------------------------------------- */
+@theme {
+  /* --- Typography (Space Grotesk site-wide) --- */
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-sans: 'Space Grotesk', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* --- Spacing (mobile-first, overridden at md in responsive section below) --- */
+  --space-section: 3.5rem;
+  --space-block: 2rem;
+  --space-element: 1.5rem;
+  --space-tight: 0.75rem;
+
+  /* --- Layout --- */
+  --max-w-prose: 65ch;
+  --max-w-content: 1100px;
+  --max-w-wide: 1280px;
+
+  /* --- Motion system --- */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-scan: cubic-bezier(0.45, 0, 0.12, 1);
+  --dur-1: 0.2s;
+  --dur-2: 0.5s;
+  --dur-3: 0.85s;
+}
+
+/* ==========================================================================
+   Color Scheme Definitions
+   Dark = default (no attribute required). Light = opt-in via data-theme.
+
+   All base element styles live in @layer base so that Tailwind's
+   @layer utilities always wins — preventing global a:hover from leaking
+   into buttons, nav links, or any element with an explicit color utility.
+   ========================================================================== */
+
+@layer base {
+
+  /* --- Light Mode (default) ---
+     Contrast ratios vs bg-primary #fafafa (WCAG AA = 4.5:1 text, 3:1 UI):
+       text-primary   #171717 → 15.8:1 ✓
+       text-secondary #525252 →  7.4:1 ✓
+       text-muted     #6b6b6b →  5.0:1 ✓
+       accent         #2563eb →  4.8:1 ✓
+       link           #1d4ed8 →  6.0:1 ✓ */
+  :root {
+    --bg-primary: #fafafa;
+    --bg-secondary: #f5f5f5;
+    --bg-elevated: #ffffff;
+    --bg-accent: #f0f0f0;
+
+    --text-primary: #171717;
+    --text-secondary: #525252;
+    --text-muted: #6b6b6b;
+
+    --accent: #2563eb;
+    --accent-hover: #1d4ed8;
+    --accent-soft: oklch(0.55 0.15 250 / 0.08);
+
+    --link: #1d4ed8;
+    --link-hover: #1e40af;
+
+    --border: rgba(0, 0, 0, 0.12);
+    --border-hover: rgba(0, 0, 0, 0.22);
+
+    color-scheme: light;
+  }
+
+  /* --- Dark Mode (explicit toggle) ---
+     Contrast ratios vs the lightest dark bg #1a1a1a (WCAG AA = 4.5:1 text,
+     3:1 UI) — the binding case, since #0a0a0a/#111111/#bg-accent #141414
+     are all darker and only raise the ratio:
+       text-primary   #f5f5f5 → 16.0:1 ✓
+       text-secondary #a1a1a1 →  6.7:1 ✓
+       text-muted     #8f8f8f →  5.4:1 ✓ (was #666666 → 3.0–3.5:1, fails AA)
+       accent         #3b82f6 →  4.7:1 ✓ */
+  [data-theme="dark"] {
+    --bg-primary: #0a0a0a;
+    --bg-secondary: #111111;
+    --bg-elevated: #1a1a1a;
+    --bg-accent: #141414;
+
+    --text-primary: #f5f5f5;
+    --text-secondary: #a1a1a1;
+    --text-muted: #8f8f8f;
+
+    --accent: #3b82f6;
+    --accent-hover: #60a5fa;
+    --accent-soft: oklch(0.55 0.15 250 / 0.1);
+
+    --link: #93c5fd;
+    --link-hover: #bfdbfe;
+
+    --border: rgba(255, 255, 255, 0.08);
+    --border-hover: rgba(255, 255, 255, 0.16);
+
+    color-scheme: dark;
+  }
+
+  /* --- Dark Mode (OS preference fallback — only when no data-theme is set) --- */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme]) {
+      --bg-primary: #0a0a0a;
+      --bg-secondary: #111111;
+      --bg-elevated: #1a1a1a;
+      --bg-accent: #141414;
+
+      --text-primary: #f5f5f5;
+      --text-secondary: #a1a1a1;
+      --text-muted: #8f8f8f;
+
+      --accent: #3b82f6;
+      --accent-hover: #60a5fa;
+      --accent-soft: oklch(0.55 0.15 250 / 0.1);
+
+      --link: #93c5fd;
+      --link-hover: #bfdbfe;
+
+      --border: rgba(255, 255, 255, 0.08);
+      --border-hover: rgba(255, 255, 255, 0.16);
+
+      color-scheme: dark;
+    }
+  }
+
+  /* --- Base Element Styles --- */
+
+  html {
+    background-color: var(--color-bg-primary);
+    color: var(--color-text-secondary);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    html { scroll-behavior: smooth; }
+  }
+
+  body {
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  main {
+    flex: 1;
+  }
+
+  /* --- Typography --- */
+
+  h1, h2, h3, h4, h5, h6 {
+    color: var(--color-text-primary);
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+
+  h1 { letter-spacing: -0.03em; }
+  h2 { letter-spacing: -0.025em; }
+
+  /* Default link style — in @layer base so any Tailwind utility wins.
+     This means text-white on a button won't be overridden by a:hover. */
+  a {
+    color: var(--color-link);
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  a:hover {
+    color: var(--color-link-hover);
+  }
+
+  /* --- Prose (markdown body) --- */
+
+  .prose {
+    color: var(--color-text-secondary);
+    line-height: 1.7;
+    max-width: var(--max-w-prose);
+  }
+
+  .prose h1, .prose h2, .prose h3 {
+    color: var(--color-text-primary);
+    margin-top: 2em;
+    margin-bottom: 0.75em;
+  }
+
+  .prose p {
+    margin-bottom: 1.25em;
+  }
+
+  .prose strong {
+    color: var(--color-text-primary);
+    font-weight: 600;
+  }
+
+  .prose code {
+    font-family: var(--font-mono);
+    font-size: 0.875em;
+    background: var(--color-bg-elevated);
+    padding: 0.15em 0.35em;
+    border-radius: 4px;
+  }
+
+  .prose pre {
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: 1.25rem;
+    overflow-x: auto;
+    margin: 1.5em 0;
+  }
+
+  .prose pre code {
+    background: none;
+    padding: 0;
+  }
+
+  .prose img {
+    border-radius: 8px;
+    margin: 1.5em 0;
+  }
+
+  .prose table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5em 0;
+    font-size: 0.9em;
+  }
+
+  .prose th {
+    text-align: left;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--color-border-hover);
+  }
+
+  .prose td {
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .prose blockquote {
+    border-left: 3px solid var(--color-accent);
+    padding-left: 1rem;
+    color: var(--color-text-muted);
+    font-style: italic;
+    margin: 1.5em 0;
+  }
+
+  .prose ul, .prose ol {
+    padding-left: 1.5em;
+    margin-bottom: 1.25em;
+  }
+
+  .prose li {
+    margin-bottom: 0.5em;
+  }
+
+  /* --- Responsive spacing overrides --- */
+
+  @media (min-width: 768px) {
+    :root {
+      --space-section: 6rem;
+      --space-block: 3rem;
+    }
+  }
+
+  /* --- Selection --- */
+
+  ::selection {
+    background: rgba(59, 130, 246, 0.3);
+    color: var(--color-text-primary);
+  }
+
+  /* --- Focus visible --- */
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  /* --- Skip-to-content link (visible only on keyboard focus) --- */
+
+  .skip-link {
+    position: fixed;
+    left: 0.75rem;
+    top: 0.75rem;
+    z-index: 100;
+    padding: 0.55rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    background: var(--color-bg-elevated);
+    color: var(--color-text-primary);
+    border: 1px solid var(--color-border-hover);
+    border-radius: 0.5rem;
+    transform: translateY(-160%);
+    transition: transform 0.18s ease;
+  }
+
+  .skip-link:focus {
+    transform: translateY(0);
+  }
+
+  /* Sticky header is ~4rem; anchor jumps land below the header. */
+  :where(h1, h2, h3, #main-content) {
+    scroll-margin-top: 5rem;
+  }
+
+  main:focus {
+    outline: none;
+  }
+} /* end @layer base */
+
+/* ==========================================================================
+   Page sections — hero + contact (extracted from index.astro so the rules
+   are cached across navigations and not re-shipped in every HTML render).
+   All non-essential motion is gated behind prefers-reduced-motion: no-preference.
+   ========================================================================== */
+
+/* --- Scroll-reveal motion system ---
+   [data-reveal] elements resolve into place as they enter the viewport.
+   Gated behind .reveal-ready (set by JS) so a no-JS / failed-JS load shows
+   everything, and behind prefers-reduced-motion. --reveal-d staggers. */
+@media (prefers-reduced-motion: no-preference) {
+  .reveal-ready [data-reveal] {
+    opacity: 0;
+    transform: translateY(22px);
+    transition:
+      opacity var(--dur-3) var(--ease-out),
+      transform var(--dur-3) var(--ease-out);
+    transition-delay: calc(var(--reveal-d, 0) * 0.075s);
+  }
+  .reveal-ready [data-reveal].in-view {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+
+/* ==========================================================================
+   Hero — type-first manifesto (viewport 1). The artifact band follows in
+   normal flow, its top corner brackets svh-tuned to crest into view on tall
+   viewports (never a width-based rule — content reflow, not layout mode,
+   handles narrow screens).
+   ========================================================================== */
+.hero-section {
+  /* svh-clamped, not vw: the min/max rem bounds keep short (mobile) viewports
+     at roughly the old padding, while the svh term grows on tall desktop/
+     laptop viewports so the artifact band's top edge creeps toward the fold. */
+  padding: clamp(3rem, calc(40svh - 8rem), 12rem) 1.5rem clamp(0px, calc(52svh - 364px), 6rem);
+}
+.hero-type {
+  max-width: 44rem;
+  margin: 0 auto;
+}
+
+.hero-name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(2.5rem, 6.2vw, 4.25rem);
+  letter-spacing: -0.03em;
+  line-height: 1.02;
+  color: var(--color-text-primary);
+  margin: 0 0 1.5rem;
+  text-wrap: balance;
+}
+.hero-positioning {
+  font-size: clamp(1rem, 1.6vw, 1.15rem);
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+  max-width: 36rem;
+  margin: 0 0 1.75rem;
+}
+.hero-positioning strong { color: var(--color-text-primary); font-weight: 600; }
+
+/* --- Artifact band: full-width, centered; point-cloud scrubber as one unit --- */
+.artifact-band {
+  position: relative;
+  z-index: 1;
+  padding: 0 1.5rem clamp(3.5rem, 8vw, 6rem);
+}
+.hero-artifact {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  min-width: 0;
+  max-width: 600px;
+  margin: 0 auto;
+}
+.artifact-frame {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  margin: 0 auto;
+  border: 1px solid var(--color-border);
+  background:
+    radial-gradient(ellipse 70% 60% at 50% 55%, rgba(59, 130, 246, 0.05) 0%, transparent 75%),
+    color-mix(in srgb, var(--color-bg-elevated) 60%, transparent);
+  border-radius: 4px;
+}
+.favela-scrubber {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+  touch-action: pan-y;
+  transition: opacity 0.22s var(--ease-out);
+}
+.favela-scrubber.is-dragging { cursor: grabbing; }
+.favela-scrubber.is-switching { opacity: 0; }
+.artifact-corners > span {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border: 1px solid var(--color-accent);
+  opacity: 0.55;
+}
+.artifact-corners > span:nth-child(1) { top: -1px; left: -1px; border-right: 0; border-bottom: 0; }
+.artifact-corners > span:nth-child(2) { top: -1px; right: -1px; border-left: 0; border-bottom: 0; }
+.artifact-corners > span:nth-child(3) { bottom: -1px; left: -1px; border-right: 0; border-top: 0; }
+.artifact-corners > span:nth-child(4) { bottom: -1px; right: -1px; border-left: 0; border-top: 0; }
+.artifact-caption {
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+.artifact-legend {
+  text-align: center;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+  max-width: 46ch;
+  margin: 0 auto;
+}
+.artifact-provenance {
+  text-align: center;
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+.artifact-provenance a {
+  color: var(--color-link);
+}
+.artifact-provenance a:hover {
+  color: var(--color-link-hover);
+}
+
+/* --- Hero caption + CTA row (compressed risk-reversal line, then the
+   primary/secondary buttons) --- */
+.hero-caption {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
+  color: var(--color-text-muted);
+  margin: 0 0 1.25rem;
+}
+.hero-cta-row {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* --- Proof grid: hard-edged plates, no images, no rounding --- */
+.proof-plate {
+  display: block;
+  border: 1px solid var(--color-border);
+  padding: 1.5rem;
+  transition: border-color var(--dur-1) var(--ease-out);
+}
+.proof-plate:hover,
+.proof-plate:focus-visible {
+  border-color: var(--color-border-hover);
+}
+.proof-plate:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+.proof-plate-label {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--color-text-muted);
+  margin: 0 0 0.5rem;
+}
+.proof-plate-title {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0 0 0.6rem;
+}
+.proof-plate-hook {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+/* --- Offer: bold lead + one sentence, three across --- */
+.offer-lead {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0 0 0.5rem;
+}
+
+/* --- Territory strip: one wrapping mono line --- */
+.territory-strip {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  line-height: 1.7;
+  color: var(--color-text-secondary);
+}
+
+/* --- Section label: CSS-only demotion of an interior h2 to instrument
+   vocabulary. Semantics (h2, a11y outline) stay untouched — this is a
+   type-treatment override only. --- */
+.section-label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+/* --- Avatar ring (flat single-accent mark; no animation) --- */
+.avatar-ring {
+  background: var(--color-accent);
+}
+
+/* --- Contact section background --- */
+.contact-bg {
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 100%, rgba(37, 99, 235, 0.08) 0%, transparent 70%),
+    linear-gradient(180deg, var(--color-bg-accent) 0%, #e6ecf6 50%, var(--color-bg-accent) 100%);
+}
+
+[data-theme="dark"] .contact-bg {
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 100%, rgba(59, 130, 246, 0.08) 0%, transparent 70%),
+    linear-gradient(180deg, var(--color-bg-accent) 0%, #0d1020 50%, var(--color-bg-accent) 100%);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .contact-bg {
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 100%, rgba(59, 130, 246, 0.08) 0%, transparent 70%),
+      linear-gradient(180deg, var(--color-bg-accent) 0%, #0d1020 50%, var(--color-bg-accent) 100%);
+  }
+}
+
+/* --- theohermann.ch landing: eyebrow line above the H1 --- */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin: 0 0 1.25rem;
+}
+
+/* --- Numbered results list --- */
+.result-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+.result-item {
+  display: grid;
+  grid-template-columns: 2.25rem 1fr;
+  gap: 0.25rem 1rem;
+}
+.result-num {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  padding-top: 0.15rem;
+}
+.result-body p {
+  color: var(--color-text-secondary);
+  line-height: 1.7;
+  margin: 0;
+}
+.result-provenance {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  margin-top: 0.6rem;
+}
+.result-provenance a {
+  color: var(--color-link);
+}
+.result-figure {
+  margin: 1rem 0 0;
+}
+.result-figure img {
+  display: block;
+  width: 100%;
+  max-width: 560px;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+}
+
+/* --- The ask: two close-out lines above the CTA row --- */
+.ask-line {
+  color: var(--color-text-secondary);
+  line-height: 1.7;
+  max-width: var(--max-w-prose);
+  margin: 0 0 1rem;
+}
+.ask-cta-row {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 1.75rem;
+}
+
+/* --- Footer: one mono line, wraps on narrow screens --- */
+.site-footer {
+  border-top: 1px solid var(--color-border);
+  margin-top: 2rem;
+}
+.footer-line {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+}
+.footer-line a {
+  color: var(--color-link);
+}
+.footer-sep {
+  opacity: 0.5;
+}

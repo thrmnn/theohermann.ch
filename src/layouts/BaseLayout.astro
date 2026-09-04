@@ -1,0 +1,113 @@
+---
+import '../styles/global.css';
+import { siteConfig } from '../data/site';
+import { author } from '../data/author';
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  ogType?: 'website' | 'profile' | 'article';
+  articleJsonLd?: Record<string, unknown>;
+}
+
+const { title, description, image, ogType = 'website', articleJsonLd } = Astro.props;
+const pageTitle = title ? `${title} · ${siteConfig.title}` : siteConfig.title;
+const pageDescription = description || siteConfig.description;
+const canonicalUrl = new URL(Astro.url.pathname, siteConfig.url).href;
+const ogImage = new URL(image || siteConfig.ogImage, siteConfig.url).href;
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": author.name,
+  "url": siteConfig.url,
+  "email": author.email,
+  "sameAs": [author.github],
+};
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self'" />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- Anti-FOUC: set data-theme synchronously before first paint -->
+    <script is:inline>
+      (function () {
+        var stored = localStorage.getItem('theme');
+        if (stored === 'light' || stored === 'dark') {
+          document.documentElement.setAttribute('data-theme', stored);
+        }
+        // When no stored preference, let :root / @media (prefers-color-scheme)
+        // in CSS handle it: no data-theme attribute needed.
+        // Arm the scroll-reveal system (CSS only hides [data-reveal] once set).
+        document.documentElement.classList.add('reveal-ready');
+      })();
+    </script>
+
+    <title>{pageTitle}</title>
+    <meta name="description" content={pageDescription} />
+    <meta name="author" content={author.name} />
+
+    <link rel="canonical" href={canonicalUrl} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content={ogType} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={pageDescription} />
+    <meta property="og:site_name" content={siteConfig.title} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:alt" content={pageTitle} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={pageDescription} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+    {articleJsonLd && (
+      <script type="application/ld+json" set:html={JSON.stringify(articleJsonLd)} />
+    )}
+
+    <!-- Font (self-hosted Space Grotesk; latin preloaded, latin-ext lazy via unicode-range) -->
+    <link rel="preload" href="/fonts/space-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin />
+  </head>
+  <body>
+    <slot />
+    <script>
+      // Scroll-reveal: resolve [data-reveal] elements into place once, as
+      // they enter the viewport. Skipped entirely under reduced-motion.
+      (() => {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        if (!('IntersectionObserver' in window)) {
+          document.querySelectorAll('[data-reveal]').forEach((el) => el.classList.add('in-view'));
+          return;
+        }
+        const io = new IntersectionObserver(
+          (entries) => {
+            for (const e of entries) {
+              if (e.isIntersecting) {
+                e.target.classList.add('in-view');
+                io.unobserve(e.target);
+              }
+            }
+          },
+          { rootMargin: '0px 0px -8% 0px', threshold: 0.12 },
+        );
+        document.querySelectorAll('[data-reveal]').forEach((el) => io.observe(el));
+      })();
+    </script>
+  </body>
+</html>
