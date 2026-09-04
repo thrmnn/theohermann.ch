@@ -1,0 +1,34 @@
+# Astro
+dist/
+.astro/
+node_modules/
+
+# Env / secrets
+.env
+*.key
+*.pem
+credentials/
+
+# Build / tooling artifacts
+chrome/
+lighthouse.*
+monogram-package.zip
+/resume.html
+
+# Raw asset staging — drop originals here; Claude optimizes them into
+# public/projects/<slug>/ and wires the frontmatter. Not committed.
+asset-intake/
+
+# WSL-on-Windows path leaks (Chrome / lighthouse profiles created with
+# Windows-style paths inside the WSL filesystem)
+C:\\*/
+"C:\\"*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+.claude/worktrees/
