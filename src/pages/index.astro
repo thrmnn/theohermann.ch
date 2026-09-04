@@ -8,6 +8,7 @@ import { join } from 'node:path';
 
 const mailto = `mailto:${author.email}`;
 const REPO = 'https://github.com/thrmnn/ros2-localization-triage';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 const stataMeta = JSON.parse(
   readFileSync(join(process.cwd(), 'public/data/stata-replay.meta.json'), 'utf8'),
@@ -49,8 +50,8 @@ const artifactLegend = `A real robot, replayed from its own logs. Green: where i
       <div class="artifact-frame">
         <canvas
           class="favela-scrubber"
-          data-walls="/data/stata-walls.bin"
-          data-replay="/data/stata-replay.json"
+          data-walls={`${base}/data/stata-walls.bin`}
+          data-replay={`${base}/data/stata-replay.json`}
           aria-label="Replay of a recorded PR2 run in the MIT Stata Center: wall map, the robot's estimated path, and the moments a fault detector fired."
         ></canvas>
         <div class="artifact-corners" aria-hidden="true">
@@ -95,7 +96,7 @@ const artifactLegend = `A real robot, replayed from its own logs. Green: where i
             </p>
             <figure class="result-figure">
               <img
-                src="/figures/labelled-recall.webp"
+                src={`${base}/figures/labelled-recall.webp`}
                 alt="Sixteen labelled laser gaps in two Cartographer recordings, two and fourteen, each matched by a detection; count match, not time match."
                 width="1140"
                 height="660"

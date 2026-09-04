@@ -16,6 +16,7 @@ const pageTitle = title ? `${title} · ${siteConfig.title}` : siteConfig.title;
 const pageDescription = description || siteConfig.description;
 const canonicalUrl = new URL(Astro.url.pathname, siteConfig.url).href;
 const ogImage = new URL(image || siteConfig.ogImage, siteConfig.url).href;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -54,8 +55,8 @@ const jsonLd = {
     <meta name="author" content={author.name} />
 
     <link rel="canonical" href={canonicalUrl} />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/svg+xml" href={`${base}/favicon.svg`} />
+    <link rel="apple-touch-icon" href={`${base}/apple-touch-icon.png`} />
 
     <!-- Open Graph -->
     <meta property="og:type" content={ogType} />
@@ -82,7 +83,7 @@ const jsonLd = {
     )}
 
     <!-- Font (self-hosted Space Grotesk; latin preloaded, latin-ext lazy via unicode-range) -->
-    <link rel="preload" href="/fonts/space-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={`${base}/fonts/space-grotesk-latin.woff2`} as="font" type="font/woff2" crossorigin />
   </head>
   <body>
     <slot />
