@@ -49,8 +49,6 @@ const excursionLeft = pct(healthy_end_s);
 const excursionWidth = pct(lost_start_s) - pct(healthy_end_s);
 const lostLeft = pct(lost_start_s);
 const lostWidth = pct(lost_end_s) - pct(lost_start_s);
-const excursionMid = excursionLeft + excursionWidth / 2;
-const lostMid = lostLeft + lostWidth / 2;
 const eventTicks = stataReplay.events.map(([t]) => pct(t / 10));
 const timelineAriaLabel = `Timeline of the ${durationS} second replay: healthy until ${healthy_end_s} seconds, an excursion to a floor with no ground truth until ${lost_start_s} seconds, then lost and ${lostMetres} metres off until ${lost_end_s} seconds.`;
 ---
