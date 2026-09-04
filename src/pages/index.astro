@@ -24,6 +24,7 @@ const stataMeta = JSON.parse(
     amcl_reported_sigma_median_m: number;
     events: number;
   };
+  excursion: { events: number };
   zones_s: { healthy_end_s: number; lost_start_s: number; lost_end_s: number };
 };
 const { tf_jump, covariance_spike, pose_divergence } = stataMeta.events_by_detector;
@@ -35,7 +36,8 @@ if (tf_jump + covariance_spike + pose_divergence !== stataMeta.events) {
 const lostMetres = stataMeta.lost_window.position_error_median_m.toFixed(1);
 const lostCm = Math.round(stataMeta.lost_window.amcl_reported_sigma_median_m * 100);
 const lostEvents = stataMeta.lost_window.events;
-const artifactCaption = `${stataMeta.platform} · ${stataMeta.duration_s} s of a recorded run · ${stataMeta.events} detector events`;
+const excursionEvents = stataMeta.excursion.events;
+const artifactCaption = `${stataMeta.platform} · ${stataMeta.duration_s} s of a recorded run · ${stataMeta.events} detector events · MIT Stata Center dataset (CC BY 3.0)`;
 
 const stataReplay = JSON.parse(
   readFileSync(join(process.cwd(), 'public/data/stata-replay.json'), 'utf8'),
@@ -50,19 +52,16 @@ const excursionWidth = pct(lost_start_s) - pct(healthy_end_s);
 const lostLeft = pct(lost_start_s);
 const lostWidth = pct(lost_end_s) - pct(lost_start_s);
 const eventTicks = stataReplay.events.map(([t]) => pct(t / 10));
-const timelineAriaLabel = `Timeline of the ${durationS} second replay: healthy until ${healthy_end_s} seconds, an excursion to a floor with no ground truth until ${lost_start_s} seconds, then lost and ${lostMetres} metres off until ${lost_end_s} seconds.`;
+const timelineAriaLabel = `Timeline of the ${durationS} second replay, in four zones: healthy, on floor 2, until ${healthy_end_s} seconds; on the floor with no map until ${lost_start_s} seconds; back, but ${lostMetres} metres off, until ${lost_end_s} seconds; then unchanged until ${durationS} seconds.`;
 ---
 
 <BaseLayout ogType="profile">
   <section id="home" class="hero-section">
     <div class="mx-auto max-w-[var(--max-w-content)] px-6">
       <div class="hero-type">
-        <p class="eyebrow" data-reveal style="--reveal-d: 0;">
-          Théo Alessandro Hermann, independent practitioner
-        </p>
-        <h1 class="hero-name" data-reveal style="--reveal-d: 1;">I read robot navigation logs.</h1>
-        <p class="hero-positioning" data-reveal style="--reveal-d: 2;">
-          I froze four fault detectors before I looked at any results, ran them unchanged on 108 minutes of recordings from five platforms, and published what they caught, what they missed, and the raw counts behind both.
+        <h1 class="hero-name" data-reveal style="--reveal-d: 0;">A robot that was lost and did not know it.</h1>
+        <p class="hero-positioning" data-reveal style="--reveal-d: 1;">
+          This is that robot's own recording. Once it settled into being wrong, its own numbers still said it was fine.
         </p>
       </div>
     </div>
@@ -76,46 +75,12 @@ const timelineAriaLabel = `Timeline of the ${durationS} second replay: healthy u
             class="favela-scrubber"
             data-walls={`${base}/data/stata-walls.bin`}
             data-replay={`${base}/data/stata-replay.json`}
-            aria-label="Replay of a recorded PR2 run in the MIT Stata Center: wall map, the robot's estimated path, and the moments a fault detector fired."
+            aria-label="Replay of a recorded PR2 run in the MIT Stata Center: wall map, the robot's believed position, and the moments a fault detector fired."
           ></canvas>
           <div class="artifact-corners" aria-hidden="true">
             <span></span><span></span><span></span><span></span>
           </div>
         </div>
-        <p class="artifact-caption">{artifactCaption}</p>
-        <p class="artifact-provenance">
-          recorded data: MIT Stata Center dataset (CC BY 3.0) · detections: <a href={REPO}>ros2-localization-triage</a> · open source, every number recomputable
-        </p>
-      </div>
-      <div class="artifact-explain" data-reveal style="--reveal-d: 2;">
-        <p class="section-label artifact-explain-eyebrow">One recorded run, replayed</p>
-        <h2 class="artifact-explain-heading">A robot that was lost and did not know it.</h2>
-        <ol class="result-list">
-          <li class="result-item">
-            <span class="result-num">01</span>
-            <div class="result-body">
-              <p>
-                A real robot in a real building, replayed from its own log: the file where it writes down, many times a second, where it thinks it is. Grey: the walls. Green: where it believed it was.
-              </p>
-            </div>
-          </li>
-          <li class="result-item">
-            <span class="result-num">02</span>
-            <div class="result-body">
-              <p>
-                It rode the lift to a floor its map did not have, and came back. From then on it was {lostMetres} metres from where it thought it was, while reporting {lostCm} centimetres of doubt. The robot itself never noticed.
-              </p>
-            </div>
-          </li>
-          <li class="result-item">
-            <span class="result-num">03</span>
-            <div class="result-body">
-              <p>
-                Amber: where my detectors noticed. {lostEvents} flags in the stretch where the truth is known. They caught the transition, then went silent once the wrong pose settled. Finding that quiet kind of failure is the work.
-              </p>
-            </div>
-          </li>
-        </ol>
         <div class="timeline-ends" aria-hidden="true">
           <span class="artifact-caption">0 s</span>
           <span class="artifact-caption">{durationS} s</span>
@@ -129,10 +94,57 @@ const timelineAriaLabel = `Timeline of the ${durationS} second replay: healthy u
           ))}
         </div>
         <div class="timeline-labels">
-          <span class="artifact-caption timeline-label timeline-label-zone" style={`left: ${excursionLeft}%;`}>another floor, truth unknown</span>
-          <span class="artifact-caption timeline-label timeline-label-zone timeline-label-lost">back, {lostMetres} m off</span>
+          <span class="artifact-caption timeline-label timeline-label-zone" style="left: 0%;">healthy, on floor 2</span>
+          <span class="artifact-caption timeline-label timeline-label-zone" style={`left: ${excursionLeft}%;`}>on the floor with no map</span>
+          <span class="artifact-caption timeline-label timeline-label-zone timeline-label-lost">back, but {lostMetres} m off</span>
         </div>
+        <p class="artifact-caption">{artifactCaption}</p>
       </div>
+      <div class="artifact-explain" data-reveal style="--reveal-d: 2;">
+        <ol class="result-list">
+          <li class="result-item">
+            <span class="result-num">01</span>
+            <div class="result-body">
+              <p>
+                Grey is the walls of a real building, from its map. Green is not where the robot went. It is where the robot's software believed it was, drawn from its own recorded log as the run plays back.
+              </p>
+            </div>
+          </li>
+          <li class="result-item">
+            <span class="result-num">02</span>
+            <div class="result-body">
+              <p>
+                Partway through, the robot rode an elevator up to a floor its map did not have, drove around, then came back down. From that point its belief and the truth split apart: its belief settled into a corridor {lostMetres} metres from where it actually stood, while its own report said it was confident to within {lostCm} centimetres.
+              </p>
+            </div>
+          </li>
+          <li class="result-item">
+            <span class="result-num">03</span>
+            <div class="result-body">
+              <p>
+                Amber marks the moments my detectors caught something wrong: {lostEvents} of them after it came back and settled into the wrong corridor, more while it was on the floor with no map. They caught it while the wrong belief was still forming. Once it stopped changing, both the checks and the robot's own confidence number went quiet, because neither had anything outside the robot's own estimate of itself to compare against.
+              </p>
+            </div>
+          </li>
+          <li class="result-item">
+            <span class="result-num">04</span>
+            <div class="result-body">
+              <p>
+                I read recordings like this one for a living. I build small checks that watch for exactly this kind of trouble, run them the same way every time, and say plainly what they catch and what they miss. If a robot in your fleet has ever come back looking fine when something was wrong, and you still have the recording, that is what the twenty-minute call below is for.
+              </p>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="pt-[calc(var(--space-section)/2)] pb-[calc(var(--space-section)/2)]">
+    <div class="mx-auto max-w-[var(--max-w-content)] px-6">
+      <p class="eyebrow" data-reveal>Théo Alessandro Hermann, independent practitioner</p>
+      <p class="max-w-prose text-text-secondary leading-relaxed" data-reveal style="--reveal-d: 1;">
+        I read robot navigation logs. I froze four fault detectors before I looked at any results, ran them unchanged on 108 minutes of recordings from five platforms, and published what they caught, what they missed, and the raw counts behind both.
+      </p>
     </div>
   </section>
 
@@ -187,6 +199,9 @@ const timelineAriaLabel = `Timeline of the ${durationS} second replay: healthy u
             <p>
               A localiser 19.4 metres wrong reported 8 centimetres of uncertainty. The detectors caught the transition, then went silent once the wrong pose settled. No monitor built on the robot's own estimates can see steady-state confident wrongness.
             </p>
+            <p>
+              Amber flagged {stataMeta.events} moments across the whole {stataMeta.duration_s}-second run: 2 while the robot was healthy, {excursionEvents} while it was on the floor with no map, and {lostEvents} once it came back and settled into the wrong corridor. One more came after the ground truth ran out, too late for anything to grade.
+            </p>
             <span class="result-provenance">Source <a href={`${REPO}/blob/main/docs/finding-confidently-wrong.md`}>docs/finding-confidently-wrong.md</a></span>
           </div>
         </li>
@@ -207,7 +222,7 @@ const timelineAriaLabel = `Timeline of the ${durationS} second replay: healthy u
     <div class="mx-auto max-w-[var(--max-w-content)] px-6">
       <h2 class="section-label mb-6" data-reveal>What this does not claim</h2>
       <p class="max-w-prose text-text-secondary leading-relaxed" data-reveal style="--reveal-d: 1;">
-        These are localisation-layer detectors, not an intrusion detection system and not a product. I recorded, ran and self-graded everything, under a rubric committed before any real result existed; the case log carries two verdicts of wrong and three of partial across fifteen graded rows. Nothing in the stock config is calibrated for your robot.
+        These are localisation-layer detectors, not an intrusion detection system and not a product. I recorded, ran and self-graded everything, under a rubric committed before any real result existed; the case log carries two verdicts of wrong and three of partial across fifteen graded rows. Three predictions I committed before one benchmark run: two held, one did not. Nothing in the stock config is calibrated for your robot.
       </p>
     </div>
   </section>
@@ -240,8 +255,6 @@ const timelineAriaLabel = `Timeline of the ${durationS} second replay: healthy u
       </div>
       <p class="contact-mail-line" data-reveal style="--reveal-d: 5;">
         <a href={mailto}>{author.email}</a>
-        <span class="footer-sep">·</span>
-        <span>Background and other work: <a href="https://theoalessandro.com">theoalessandro.com</a></span>
       </p>
     </div>
   </section>
@@ -251,7 +264,11 @@ const timelineAriaLabel = `Timeline of the ${durationS} second replay: healthy u
       <div class="footer-line">
         <a href={author.github}>github.com/thrmnn</a>
         <span class="footer-sep">·</span>
+        <span>Background and other work: <a href="https://theoalessandro.com">theoalessandro.com</a></span>
+        <span class="footer-sep">·</span>
         <span>recorded data: MIT Stata Center dataset (CC BY 3.0) · detections: <a href={REPO}>ros2-localization-triage</a></span>
+        <span class="footer-sep">·</span>
+        <span>open source, every number recomputable</span>
         <span class="footer-sep">·</span>
         <ThemeToggle />
       </div>
