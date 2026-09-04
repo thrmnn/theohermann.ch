@@ -510,7 +510,7 @@
   margin: 0;
 }
 .artifact-provenance {
-  text-align: center;
+  text-align: left;
   font-size: 0.7rem;
   color: var(--color-text-muted);
   margin: 0;
@@ -762,4 +762,17 @@
 }
 .footer-sep {
   opacity: 0.5;
+}
+
+/* The labelled-recall figure is a white plate; take the glare off it in the dark theme. */
+.result-figure img {
+  border-radius: 4px;
+}
+[data-theme="dark"] .result-figure img {
+  filter: brightness(0.86);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .result-figure img {
+    filter: brightness(0.86);
+  }
 }
