@@ -1,0 +1,1 @@
+Space Grotesk and JetBrains Mono are licensed under the SIL Open Font License 1.1 (OFL), sourced from the Google Fonts OFL directory: https://github.com/google/fonts/raw/main/ofl/spacegrotesk/SpaceGrotesk%5Bwght%5D.ttf and https://github.com/google/fonts/raw/main/ofl/jetbrainsmono/JetBrainsMono%5Bwght%5D.ttf.
