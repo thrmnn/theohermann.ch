@@ -69,14 +69,32 @@ def read_events(path: Path) -> list[dict]:
 
 def read_lost_window(path: Path) -> dict:
     gt = json.loads(path.read_text())
+    zones = gt["detections_by_zone"]
     for w in gt["windows"]:
         if w["window"] == "part3_after_floor_change":
             return {
                 "window": w["window"],
                 "position_error_median_m": w["position_error_median_m"],
                 "amcl_reported_sigma_median_m": w["amcl_reported_sigma_median_m"],
+                "events": sum(zones["part3_lost"].values()),
             }
     sys.exit("✗ part3_after_floor_change window not found in gt_comparison.json")
+
+
+def read_excursion(path: Path) -> dict:
+    zones = json.loads(path.read_text())["detections_by_zone"]
+    return {"events": sum(zones["excursion_no_gt"].values())}
+
+
+def read_zone_bounds(grade_script: Path) -> tuple[int, tuple[float, float, float]]:
+    """BAG_T0_US and GT_ZONES_S as the demo's grader defines them (parsed, not imported:
+    the grader pulls numpy)."""
+    import re
+    src = grade_script.read_text()
+    t0 = int(re.search(r"BAG_T0_US\s*=\s*([\d_]+)", src).group(1).replace("_", ""))
+    z = re.search(r"GT_ZONES_S\s*=\s*\(([^)]+)\)", src).group(1)
+    a, b, c = (float(v) for v in z.split(","))
+    return t0, (a, b, c)
 
 
 def main() -> int:
@@ -116,6 +134,14 @@ def main() -> int:
     poses.sort(key=lambda p: p["t_us"])
     t0_us = poses[0]["t_us"]
     t_max_s = (poses[-1]["t_us"] - t0_us) / 1e6
+    # Zone bounds are on the bag clock; the replay clock starts at the first pose.
+    bag_t0_us, gt_zones = read_zone_bounds(clone / "scripts" / "stata_grade.py")
+    shift_s = (t0_us - bag_t0_us) / 1e6
+    zones_s = {
+        "healthy_end_s": round(gt_zones[0] - shift_s, 1),
+        "lost_start_s": round(gt_zones[1] - shift_s, 1),
+        "lost_end_s": round(gt_zones[2] - shift_s, 1),
+    }
 
     pose_rows = []
     for p in poses:
@@ -159,6 +185,8 @@ def main() -> int:
         "events": len(events_raw),
         "events_by_detector": events_by_detector,
         "lost_window": lost_window,
+        "excursion": read_excursion(stata_dir / "gt_comparison.json"),
+        "zones_s": zones_s,
         "source": "https://github.com/thrmnn/ros2-localization-triage/tree/main/results/stata",
     }
     OUT_META.write_text(json.dumps(meta, indent=2))

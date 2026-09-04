@@ -14,7 +14,16 @@
   "lost_window": {
     "window": "part3_after_floor_change",
     "position_error_median_m": 19.428,
-    "amcl_reported_sigma_median_m": 0.081
+    "amcl_reported_sigma_median_m": 0.081,
+    "events": 30
+  },
+  "excursion": {
+    "events": 47
+  },
+  "zones_s": {
+    "healthy_end_s": 112.1,
+    "lost_start_s": 302.0,
+    "lost_end_s": 389.8
   },
   "source": "https://github.com/thrmnn/ros2-localization-triage/tree/main/results/stata"
 }
