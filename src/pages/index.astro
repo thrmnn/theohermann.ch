@@ -34,14 +34,16 @@ const artifactLegend = `A real robot, replayed from its own logs. Green: where i
 
 <BaseLayout ogType="profile">
   <section id="home" class="hero-section">
-    <div class="hero-type">
-      <p class="eyebrow" data-reveal style="--reveal-d: 0;">
-        Théo Alessandro Hermann, independent practitioner
-      </p>
-      <h1 class="hero-name" data-reveal style="--reveal-d: 1;">I read robot navigation logs.</h1>
-      <p class="hero-positioning" data-reveal style="--reveal-d: 2;">
-        I froze four fault detectors before I looked at any results, ran them unchanged on 108 minutes of recordings from five platforms, and published what they caught, what they missed, and the raw counts behind both.
-      </p>
+    <div class="mx-auto max-w-[var(--max-w-content)] px-6">
+      <div class="hero-type">
+        <p class="eyebrow" data-reveal style="--reveal-d: 0;">
+          Théo Alessandro Hermann, independent practitioner
+        </p>
+        <h1 class="hero-name" data-reveal style="--reveal-d: 1;">I read robot navigation logs.</h1>
+        <p class="hero-positioning" data-reveal style="--reveal-d: 2;">
+          I froze four fault detectors before I looked at any results, ran them unchanged on 108 minutes of recordings from five platforms, and published what they caught, what they missed, and the raw counts behind both.
+        </p>
+      </div>
     </div>
   </section>
 
@@ -66,7 +68,7 @@ const artifactLegend = `A real robot, replayed from its own logs. Green: where i
     </div>
   </section>
 
-  <section class="py-[var(--space-section)]">
+  <section class="pb-[var(--space-section)]">
     <div class="mx-auto max-w-[var(--max-w-content)] px-6">
       <h2 class="section-label mb-6" data-reveal>The problem</h2>
       <p class="max-w-prose text-text-secondary leading-relaxed" data-reveal style="--reveal-d: 1;">
@@ -102,6 +104,9 @@ const artifactLegend = `A real robot, replayed from its own logs. Green: where i
                 height="660"
                 loading="lazy"
               />
+              <figcaption>
+                Two Cartographer backpack recordings on a shared timeline: the dataset's Known Issues column counts 2 and 14 laser gaps, and the frozen detector found 2 and 14 events, nothing elsewhere.
+              </figcaption>
             </figure>
             <span class="result-provenance">
               Source <a href={`${REPO}/tree/main/results/labelled`}>results/labelled/</a> · <a href={`${REPO}/blob/main/docs/figures/labelled-recall.png`}>docs/figures/labelled-recall.png</a>
@@ -149,7 +154,13 @@ const artifactLegend = `A real robot, replayed from its own logs. Green: where i
       <p class="ask-line" data-reveal style="--reveal-d: 2;">
         Analysis runs on your infrastructure or under NDA on mine; nothing is retained after handover.
       </p>
-      <div class="ask-cta-row" data-reveal style="--reveal-d: 3;">
+      <ul class="engagement-list" data-reveal style="--reveal-d: 3;">
+        <li class="engagement-item"><span class="engagement-label">Twenty minutes, free:</span> you bring the incident, I tell you honestly whether it is a fit.</li>
+        <li class="engagement-item"><span class="engagement-label">Written proposal:</span> fixed scope, fixed price. You see exactly what you are buying before you commit.</li>
+        <li class="engagement-item"><span class="engagement-label">Weekly written updates:</span> what shipped, what is next, what is at risk. No status meetings unless you want them.</li>
+        <li class="engagement-item"><span class="engagement-label">Handover:</span> running code, documentation and a written report. Engagements end clean.</li>
+      </ul>
+      <div class="ask-cta-row" data-reveal style="--reveal-d: 4;">
         <Button href={author.cal} external>
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
           Book a 20-minute call
@@ -159,6 +170,9 @@ const artifactLegend = `A real robot, replayed from its own logs. Green: where i
           Email
         </Button>
       </div>
+      <p class="contact-mail-line" data-reveal style="--reveal-d: 5;">
+        <a href={mailto}>{author.email}</a>
+      </p>
     </div>
   </section>
 
