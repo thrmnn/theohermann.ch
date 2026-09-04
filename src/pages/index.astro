@@ -1,0 +1,183 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Button from '../components/ui/Button.astro';
+import ThemeToggle from '../components/ui/ThemeToggle.astro';
+import { author } from '../data/author';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
+const mailto = `mailto:${author.email}`;
+const REPO = 'https://github.com/thrmnn/ros2-localization-triage';
+
+const stataMeta = JSON.parse(
+  readFileSync(join(process.cwd(), 'public/data/stata-replay.meta.json'), 'utf8'),
+) as {
+  platform: string;
+  dataset: string;
+  duration_s: number;
+  events: number;
+  events_by_detector: { tf_jump: number; covariance_spike: number; pose_divergence: number };
+  lost_window: { window: string; position_error_median_m: number; amcl_reported_sigma_median_m: number };
+};
+const { tf_jump, covariance_spike, pose_divergence } = stataMeta.events_by_detector;
+if (tf_jump + covariance_spike + pose_divergence !== stataMeta.events) {
+  throw new Error(
+    `stata-replay.meta.json: events_by_detector (${tf_jump}+${covariance_spike}+${pose_divergence}) does not sum to events (${stataMeta.events})`,
+  );
+}
+const lostMetres = stataMeta.lost_window.position_error_median_m.toFixed(1);
+const lostCm = Math.round(stataMeta.lost_window.amcl_reported_sigma_median_m * 100);
+const artifactCaption = `${stataMeta.platform} · ${stataMeta.duration_s} s of a recorded run · ${stataMeta.events} detector events`;
+const artifactLegend = `A real robot, replayed from its own logs. Green: where it believed it was. Amber: where my detectors flagged trouble. After a floor change it was ${lostMetres} metres off while reporting ${lostCm} centimetres of uncertainty. Finding that quiet kind of failure is the work.`;
+---
+
+<BaseLayout ogType="profile">
+  <section id="home" class="hero-section">
+    <div class="hero-type">
+      <p class="eyebrow" data-reveal style="--reveal-d: 0;">
+        Théo Alessandro Hermann, independent practitioner
+      </p>
+      <h1 class="hero-name" data-reveal style="--reveal-d: 1;">I read robot navigation logs.</h1>
+      <p class="hero-positioning" data-reveal style="--reveal-d: 2;">
+        I froze four fault detectors before I looked at any results, ran them unchanged on 108 minutes of recordings from five platforms, and published what they caught, what they missed, and the raw counts behind both.
+      </p>
+    </div>
+  </section>
+
+  <section class="artifact-band">
+    <div class="hero-artifact" data-reveal style="--reveal-d: 1;">
+      <div class="artifact-frame">
+        <canvas
+          class="favela-scrubber"
+          data-walls="/data/stata-walls.bin"
+          data-replay="/data/stata-replay.json"
+          aria-label="Replay of a recorded PR2 run in the MIT Stata Center: wall map, the robot's estimated path, and the moments a fault detector fired."
+        ></canvas>
+        <div class="artifact-corners" aria-hidden="true">
+          <span></span><span></span><span></span><span></span>
+        </div>
+      </div>
+      <p class="artifact-caption">{artifactCaption}</p>
+      <p class="artifact-legend">{artifactLegend}</p>
+      <p class="artifact-provenance">
+        recorded data: MIT Stata Center dataset (CC BY 3.0) · detections: <a href={REPO}>ros2-localization-triage</a> · open source, every number recomputable
+      </p>
+    </div>
+  </section>
+
+  <section class="py-[var(--space-section)]">
+    <div class="mx-auto max-w-[var(--max-w-content)] px-6">
+      <h2 class="section-label mb-6" data-reveal>The problem</h2>
+      <p class="max-w-prose text-text-secondary leading-relaxed" data-reveal style="--reveal-d: 1;">
+        A fleet's worst localisation incidents are the quiet ones: the robot that was somewhere else while reporting centimetre confidence, the alarm that fired on a healthy machine, the failure nobody can reproduce from the bag. Stock Nav2 ships AMCL with kidnap recovery switched off, so a displaced robot has no mechanism to conclude it is lost. Someone has to notice, and the bag is usually all they have.
+      </p>
+    </div>
+  </section>
+
+  <section class="py-[var(--space-section)]">
+    <div class="mx-auto max-w-[var(--max-w-content)] px-6">
+      <h2 class="section-label mb-10" data-reveal>Three results</h2>
+      <ol class="result-list">
+        <li class="result-item" data-reveal style="--reveal-d: 1;">
+          <span class="result-num">01</span>
+          <div class="result-body">
+            <p>
+              The same frozen thresholds meant opposite things on different robots. 9 to 36 flags per robot-hour on Cartographer backpack recordings, every one a real dropout; 1880 on a MiR100 warehouse AGV, none of them look real. A threshold is not a property of a failure. It is a property of the machine it was measured on.
+            </p>
+            <span class="result-provenance">Source <a href={`${REPO}/blob/main/docs/transferability.md`}>docs/transferability.md</a></span>
+          </div>
+        </li>
+        <li class="result-item" data-reveal style="--reveal-d: 2;">
+          <span class="result-num">02</span>
+          <div class="result-body">
+            <p>
+              Against labels somebody else wrote, years before this tool existed: 16 of 16 gaps found, nothing else flagged.
+            </p>
+            <figure class="result-figure">
+              <img
+                src="/figures/labelled-recall.webp"
+                alt="Sixteen labelled laser gaps in two Cartographer recordings, two and fourteen, each matched by a detection; count match, not time match."
+                width="1140"
+                height="660"
+                loading="lazy"
+              />
+            </figure>
+            <span class="result-provenance">
+              Source <a href={`${REPO}/tree/main/results/labelled`}>results/labelled/</a> · <a href={`${REPO}/blob/main/docs/figures/labelled-recall.png`}>docs/figures/labelled-recall.png</a>
+            </span>
+          </div>
+        </li>
+        <li class="result-item" data-reveal style="--reveal-d: 3;">
+          <span class="result-num">03</span>
+          <div class="result-body">
+            <p>
+              A localiser 19.4 metres wrong reported 8 centimetres of uncertainty. The detectors caught the transition, then went silent once the wrong pose settled. No monitor built on the robot's own estimates can see steady-state confident wrongness.
+            </p>
+            <span class="result-provenance">Source <a href={`${REPO}/blob/main/docs/finding-confidently-wrong.md`}>docs/finding-confidently-wrong.md</a></span>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="py-[var(--space-section)]">
+    <div class="mx-auto max-w-[var(--max-w-content)] px-6">
+      <h2 class="section-label mb-6" data-reveal>What this means for a fleet</h2>
+      <p class="max-w-prose text-text-secondary leading-relaxed" data-reveal style="--reveal-d: 1;">
+        Monitoring rules tuned on one robot mean something different on the next one, and a localiser that has settled into a wrong pose looks healthy to any check that trusts its own estimate. Triage on a fleet is therefore a calibration-and-ground-truth problem before it is a tooling problem.
+      </p>
+    </div>
+  </section>
+
+  <section class="py-[var(--space-section)]">
+    <div class="mx-auto max-w-[var(--max-w-content)] px-6">
+      <h2 class="section-label mb-6" data-reveal>What this does not claim</h2>
+      <p class="max-w-prose text-text-secondary leading-relaxed" data-reveal style="--reveal-d: 1;">
+        These are localisation-layer detectors, not an intrusion detection system and not a product. I recorded, ran and graded everything myself, under a rubric committed before any real result existed; the case log carries two verdicts of wrong and three of partial. Nothing in the stock config is calibrated for your robot.
+      </p>
+    </div>
+  </section>
+
+  <section id="contact" class="contact-section relative py-[var(--space-section)] overflow-hidden">
+    <div class="contact-bg absolute inset-0"></div>
+    <div class="relative z-10 mx-auto max-w-[var(--max-w-content)] px-6">
+      <h2 class="section-label mb-6" data-reveal>The ask</h2>
+      <p class="ask-line" data-reveal style="--reveal-d: 1;">
+        If a robot in your fleet was somewhere it should not have been, and the bag exists, twenty minutes over that bag is the conversation I am proposing.
+      </p>
+      <p class="ask-line" data-reveal style="--reveal-d: 2;">
+        Analysis runs on your infrastructure or under NDA on mine; nothing is retained after handover.
+      </p>
+      <div class="ask-cta-row" data-reveal style="--reveal-d: 3;">
+        <Button href={author.cal} external>
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+          Book a 20-minute call
+        </Button>
+        <Button href={mailto} variant="secondary">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+          Email
+        </Button>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="mx-auto max-w-[var(--max-w-content)] px-6 py-8">
+      <div class="footer-line">
+        <a href={author.github}>github.com/thrmnn</a>
+        <span class="footer-sep">·</span>
+        <span>More of my work: <a href="https://theoalessandro.com">theoalessandro.com</a></span>
+        <span class="footer-sep">·</span>
+        <span>recorded data: MIT Stata Center dataset (CC BY 3.0) · detections: <a href={REPO}>ros2-localization-triage</a></span>
+        <span class="footer-sep">·</span>
+        <ThemeToggle />
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    import { initFavelaScrubber } from '../scripts/favela-scrubber.ts';
+    const canvas = document.querySelector('.favela-scrubber') as HTMLCanvasElement | null;
+    if (canvas) initFavelaScrubber(canvas);
+  </script>
+</BaseLayout>
