@@ -118,6 +118,10 @@ const timelineAriaLabel = `Timeline of the ${durationS} second replay: healthy u
             </div>
           </li>
         </ol>
+        <div class="timeline-ends" aria-hidden="true">
+          <span class="artifact-caption">0 s</span>
+          <span class="artifact-caption">{durationS} s</span>
+        </div>
         <div class="artifact-timeline" role="img" aria-label={timelineAriaLabel}>
           <span class="timeline-zone timeline-zone-healthy" style={`left: 0%; width: ${healthyWidth}%;`}></span>
           <span class="timeline-zone timeline-zone-excursion" style={`left: ${excursionLeft}%; width: ${excursionWidth}%;`}></span>
@@ -127,10 +131,8 @@ const timelineAriaLabel = `Timeline of the ${durationS} second replay: healthy u
           ))}
         </div>
         <div class="timeline-labels">
-          <span class="artifact-caption timeline-label timeline-label-start">0 s</span>
-          <span class="artifact-caption timeline-label timeline-label-mid" style={`left: ${excursionMid}%;`}>another floor, no ground truth</span>
+          <span class="artifact-caption timeline-label timeline-label-mid" style={`left: ${excursionMid}%;`}>another floor, truth unknown</span>
           <span class="artifact-caption timeline-label timeline-label-mid" style={`left: ${lostMid}%;`}>back, {lostMetres} m off</span>
-          <span class="artifact-caption timeline-label timeline-label-end">{durationS} s</span>
         </div>
       </div>
     </div>

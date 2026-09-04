@@ -722,7 +722,7 @@
   background: color-mix(in srgb, green 14%, transparent);
 }
 .timeline-zone-excursion {
-  background: var(--color-bg-elevated);
+  background: repeating-linear-gradient(135deg, var(--color-border) 0 1px, transparent 1px 6px);
 }
 .timeline-zone-lost {
   background: color-mix(in srgb, orange 18%, transparent);
@@ -734,6 +734,15 @@
   width: 1px;
   background: orange;
   opacity: 0.7;
+}
+.timeline-ends {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.35rem;
+}
+.timeline-ends .artifact-caption {
+  text-align: left;
+  margin: 0;
 }
 .timeline-labels {
   position: relative;
