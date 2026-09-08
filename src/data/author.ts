@@ -1,4 +1,4 @@
-const email = 'thermann.ai@gmail.com';
+const email = 'theo@theohermann.ch';
 
 export const author = {
   name: 'Théo Alessandro Hermann',
