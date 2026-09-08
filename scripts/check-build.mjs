@@ -60,7 +60,9 @@ for (const a of ['og-default.png', 'favicon.svg', 'sitemap-index.xml']) {
 // 3. no forbidden identity/positioning leakage — the two private names must
 //    never appear (commit messages, file names, alt text are checked outside
 //    this script), plus the terms this landing must never echo.
-const forbidden = ['theoh-io', 'Urban Science', 'false alarm', 'false-alarm'];
+// Two private names the site must never carry; encoded so this public list is not itself the leak.
+const privateNames = ['TWFzc2lm', 'U2lsbGFnZQ=='].map((b) => Buffer.from(b, 'base64').toString());
+const forbidden = [...privateNames, 'theoh-io', 'Urban Science', 'false alarm', 'false-alarm'];
 for (const f of htmlFiles) {
   const html = readFileSync(f, 'utf8');
   for (const term of forbidden) {
