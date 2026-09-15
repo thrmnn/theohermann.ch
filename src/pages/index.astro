@@ -200,7 +200,7 @@ const timelineAriaLabel = `Timeline of the ${durationS} second replay, in four z
               A localiser 19.4 metres wrong reported 8 centimetres of uncertainty. The detectors caught the transition, then went silent once the wrong pose settled. No monitor built on the robot's own estimates can see steady-state confident wrongness.
             </p>
             <p>
-              Amber flagged {stataMeta.events} moments across the whole {stataMeta.duration_s}-second run: 2 while the robot was healthy, {excursionEvents} while it was on the floor with no map, and {lostEvents} once it came back and settled into the wrong corridor. One more came after the ground truth ran out, too late for anything to grade.
+              Amber flagged {stataMeta.events} moments across the whole {stataMeta.duration_s}-second run: 2 while the robot was healthy, which the case log counts against the detector, {excursionEvents} while it was on the floor with no map, and {lostEvents} once it came back and settled into the wrong corridor. One more came after the ground truth ran out, too late for anything to grade.
             </p>
             <span class="result-provenance">Source <a href={`${REPO}/blob/main/docs/finding-confidently-wrong.md`}>docs/finding-confidently-wrong.md</a></span>
           </div>
