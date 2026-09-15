@@ -94,8 +94,8 @@ const timelineAriaLabel = `Timeline of the ${durationS} second replay, in four z
           ))}
         </div>
         <div class="timeline-labels">
-          <span class="artifact-caption timeline-label timeline-label-zone" style="left: 0%;">healthy, on floor 2</span>
-          <span class="artifact-caption timeline-label timeline-label-zone" style={`left: ${excursionLeft}%;`}>on the floor with no map</span>
+          <span class="artifact-caption timeline-label timeline-label-zone timeline-label-healthy" style="left: 0%;">healthy, on floor 2</span>
+          <span class="artifact-caption timeline-label timeline-label-zone timeline-label-excursion" style={`left: ${excursionLeft}%;`}>on the floor with no map</span>
           <span class="artifact-caption timeline-label timeline-label-zone timeline-label-lost">back, but {lostMetres} m off</span>
         </div>
         <p class="artifact-caption">{artifactCaption}</p>

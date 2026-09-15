@@ -769,10 +769,32 @@
   right: 0;
   top: 1.4em;
 }
+/* Below 480px the labels cannot sit over their zones without colliding, so
+   they stack as a key, each with a swatch of the zone it names. */
 @media (max-width: 480px) {
-  .timeline-label-zone {
-    display: none;
+  .timeline-labels {
+    position: static;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3em;
   }
+  .timeline-label-zone {
+    position: static;
+    white-space: normal;
+  }
+  .timeline-label-zone::before {
+    content: '';
+    display: inline-block;
+    width: 1.1em;
+    height: 0.65em;
+    margin-right: 0.5em;
+    vertical-align: baseline;
+    border: 1px solid var(--color-border);
+  }
+  .timeline-label-healthy::before { background: color-mix(in srgb, green 14%, transparent); }
+  .timeline-label-excursion::before { background: repeating-linear-gradient(135deg, var(--color-border) 0 1px, transparent 1px 4px); }
+  .timeline-label-lost::before { background: color-mix(in srgb, orange 18%, transparent); }
 }
 .result-provenance {
   display: block;
@@ -871,15 +893,16 @@
   opacity: 0.5;
 }
 
-/* The labelled-recall figure is a white plate; take the glare off it in the dark theme. */
+/* The labelled-recall figure is a white plate; take the glare off it in the dark theme
+   (0.86 still read as a bare white card on the near-black ground). */
 .result-figure img {
   border-radius: 4px;
 }
 [data-theme="dark"] .result-figure img {
-  filter: brightness(0.86);
+  filter: brightness(0.74);
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) .result-figure img {
-    filter: brightness(0.86);
+    filter: brightness(0.74);
   }
 }
