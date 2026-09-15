@@ -72,7 +72,7 @@ for (const f of htmlFiles) {
 
 // 5. identity
 const home = readFileSync(join(DIST, 'index.html'), 'utf8');
-must('identity', home.includes('Théo Alessandro Hermann'), 'canonical name missing from homepage');
+must('identity', home.includes('Théo Hermann'), 'canonical name missing from homepage');
 
 // 5b. stata replay caption must match the sidecar meta exactly — the numbers
 //     in the caption are rendered at build time from this file, so a drift
