@@ -62,7 +62,7 @@ for (const a of ['og-default.png', 'favicon.svg', 'sitemap-index.xml']) {
 //    this script), plus the terms this landing must never echo.
 // Two private names the site must never carry; encoded so this public list is not itself the leak.
 const privateNames = ['TWFzc2lm', 'U2lsbGFnZQ=='].map((b) => Buffer.from(b, 'base64').toString());
-const forbidden = [...privateNames, 'theoh-io', 'Urban Science', 'false alarm', 'false-alarm'];
+const forbidden = [...privateNames, 'theoh-io', 'Urban Science', 'false alarm', 'false-alarm', 'Alessandro'];
 for (const f of htmlFiles) {
   const html = readFileSync(f, 'utf8');
   for (const term of forbidden) {
