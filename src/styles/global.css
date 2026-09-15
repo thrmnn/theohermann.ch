@@ -899,10 +899,12 @@
   border-radius: 4px;
 }
 [data-theme="dark"] .result-figure img {
-  filter: brightness(0.74);
+  filter: brightness(0.62);
+  border-color: color-mix(in srgb, var(--color-border) 60%, transparent);
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) .result-figure img {
-    filter: brightness(0.74);
+    filter: brightness(0.62);
+  border-color: color-mix(in srgb, var(--color-border) 60%, transparent);
   }
 }
