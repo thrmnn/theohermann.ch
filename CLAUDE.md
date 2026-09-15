@@ -8,13 +8,14 @@ Read this before touching the repo. The site is LIVE at https://theohermann.ch
 
 The robotics consulting landing page, and only that. One reader: a buyer who
 runs ROS 2 fleets and decides in twenty seconds whether to reply to a cold
-email. It sells one scoped engagement (ROS 2 fleet log triage) on the evidence
-of the public demo repo `github.com/thrmnn/ros2-localization-triage`.
+email. It is one practice, one worked example in public: ROS 2 fleet log
+triage, proven on the evidence of the public demo repo
+`github.com/thrmnn/ros2-localization-triage`.
 
 The personal research portfolio is theoalessandro.com, a separate repo
 (`~/Perso/thrmnn.github.io`). The two sites never link to each other from a
-page a peer or a buyer reaches. Do not add research, publications, or the
-personal biography here.
+page a peer or a buyer reaches. One identity line with dated stints is
+allowed here; no CV section, no research, no publications.
 
 ## 2. Non-negotiables (the build gate enforces most of them)
 
