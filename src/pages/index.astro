@@ -36,8 +36,7 @@ if (tf_jump + covariance_spike + pose_divergence !== stataMeta.events) {
 const lostMetres = stataMeta.lost_window.position_error_median_m.toFixed(1);
 const lostCm = Math.round(stataMeta.lost_window.amcl_reported_sigma_median_m * 100);
 const lostEvents = stataMeta.lost_window.events;
-const excursionEvents = stataMeta.excursion.events;
-const artifactCaption = `${stataMeta.platform} · ${stataMeta.duration_s} s of a recorded run · ${stataMeta.events} detector events · MIT Stata Center dataset (CC BY 3.0)`;
+const artifactCaption = `${stataMeta.platform} · ${stataMeta.duration_s} s of localiser output · ${stataMeta.events} detector events · MIT Stata Center dataset (CC BY 3.0)`;
 
 const stataReplay = JSON.parse(
   readFileSync(join(process.cwd(), 'public/data/stata-replay.json'), 'utf8'),
@@ -56,9 +55,22 @@ const timelineAriaLabel = `Timeline of the ${durationS} second replay, in four z
 ---
 
 <BaseLayout ogType="profile">
+  <section class="pt-[calc(var(--space-section)/2)] pb-[calc(var(--space-section)/2)]">
+    <div class="mx-auto max-w-[var(--max-w-content)] px-6">
+      <p class="eyebrow" data-reveal>Théo Hermann, independent practitioner</p>
+      <p class="max-w-prose text-text-secondary leading-relaxed" data-reveal style="--reveal-d: 1;">
+        MSc Robotics, EPFL. Perception and autonomy work at EPFL VITA Lab, IRI Barcelona and Roboat, 2022 to 2024; research fellow at MIT Senseable City Lab since 2025.
+      </p>
+      <p class="max-w-prose text-text-secondary leading-relaxed" data-reveal style="--reveal-d: 2;">
+        I read robot navigation logs. When a robot in your fleet misbehaves in the field and the recording is all you have, I reconstruct what happened from it, say what the evidence supports and what it does not, and hand it back in writing.
+      </p>
+    </div>
+  </section>
+
   <section id="home" class="hero-section">
     <div class="mx-auto max-w-[var(--max-w-content)] px-6">
       <div class="hero-type">
+        <p class="eyebrow" data-reveal>One worked example, in public.</p>
         <h1 class="hero-name" data-reveal style="--reveal-d: 0;">A robot that was lost and did not know it.</h1>
         <p class="hero-positioning" data-reveal style="--reveal-d: 1;">
           This is that robot's own recording. Once it settled into being wrong, its own numbers still said it was fine.
@@ -130,21 +142,12 @@ const timelineAriaLabel = `Timeline of the ${durationS} second replay, in four z
             <span class="result-num">04</span>
             <div class="result-body">
               <p>
-                I read recordings like this one for a living. I build small checks that watch for exactly this kind of trouble, run them the same way every time, and say plainly what they catch and what they miss. If a robot in your fleet has ever come back looking fine when something was wrong, and you still have the recording, that is what the twenty-minute call below is for.
+                I build small checks that watch for exactly this kind of trouble, run them the same way every time, and say plainly what they catch and what they miss. If a robot in your fleet has ever come back looking fine when something was wrong, and you still have the recording, that is what the twenty-minute call below is for.
               </p>
             </div>
           </li>
         </ol>
       </div>
-    </div>
-  </section>
-
-  <section class="pt-[calc(var(--space-section)/2)] pb-[calc(var(--space-section)/2)]">
-    <div class="mx-auto max-w-[var(--max-w-content)] px-6">
-      <p class="eyebrow" data-reveal>Théo Hermann, independent practitioner</p>
-      <p class="max-w-prose text-text-secondary leading-relaxed" data-reveal style="--reveal-d: 1;">
-        I read robot navigation logs. I froze four fault detectors before I looked at any results, ran them unchanged on 108 minutes of recordings from five platforms, and published what they caught, what they missed, and the raw counts behind both.
-      </p>
     </div>
   </section>
 
@@ -157,20 +160,39 @@ const timelineAriaLabel = `Timeline of the ${durationS} second replay, in four z
     </div>
   </section>
 
+  <section id="triage" class="py-[var(--space-section)]">
+    <div class="mx-auto max-w-[var(--max-w-content)] px-6">
+      <h2 class="section-label mb-6" data-reveal>What I take on</h2>
+      <p class="max-w-prose text-text-secondary leading-relaxed" data-reveal style="--reveal-d: 1;">
+        Offline analysis of what your robots recorded. Nothing goes on the robot.
+      </p>
+      <ul class="engagement-list" data-reveal style="--reveal-d: 2;">
+        <li class="engagement-item"><span class="engagement-label">One incident.</span> You bring the bag from a robot that misbehaved at a site. I reconstruct the timeline from the recording and write up what the evidence supports and what it does not.</li>
+        <li class="engagement-item"><span class="engagement-label">Your fleet's recordings.</span> Monitoring rules tuned on one robot mean something different on the next one, and a localiser that has settled into a wrong pose looks healthy to any check that trusts its own estimate. Triage on a fleet is therefore a calibration-and-ground-truth problem before it is a tooling problem. So I run the checks on your recorded bags, set the thresholds on your own recordings, measure how often each one fires on a recording with nothing wrong, and hand over the scripts to rerun on the next one.</li>
+      </ul>
+      <p class="max-w-prose text-text-secondary leading-relaxed" data-reveal style="--reveal-d: 3;">
+        The same reading applies when the failure sits in the perception stack rather than the localiser, as long as the recording holds it. Where I learned that side: camera perception and MLOps at Roboat, as its first intern, on a stack that until then ran on LiDAR; a full ROS autonomy stack for navigation in crowds on a Segway Loomo at EPFL VITA Lab. The public proof on this page is the localisation work.
+      </p>
+    </div>
+  </section>
+
   <section class="py-[var(--space-section)]">
     <div class="mx-auto max-w-[var(--max-w-content)] px-6">
       <h2 class="section-label mb-10" data-reveal>Three results</h2>
+      <p class="max-w-prose text-text-secondary leading-relaxed mb-10" data-reveal style="--reveal-d: 1;">
+        I froze four fault detectors before I looked at any results, ran them unchanged on 108 minutes of recordings from five platforms, and published what they caught, what they missed, and the raw counts behind both. Method and every number: <a href={REPO}>github.com/thrmnn/ros2-localization-triage</a>.
+      </p>
       <ol class="result-list">
-        <li class="result-item" data-reveal style="--reveal-d: 1;">
+        <li class="result-item" data-reveal style="--reveal-d: 2;">
           <span class="result-num">01</span>
           <div class="result-body">
             <p>
-              The same frozen thresholds did not transfer. The covariance threshold, set on a simulated TurtleBot3, sits inside a real Tiago's healthy yaw noise and fired five times on a recording with nothing wrong, graded wrong in the case log. A threshold is a property of the machine it was measured on.
+              Thresholds do not travel between robots. Set on a simulated TurtleBot3, the covariance threshold sits inside the healthy noise of a real Tiago. It fired five times on a recording with nothing wrong, and the case log grades that wrong. A threshold belongs to the machine it was measured on.
             </p>
             <span class="result-provenance">Source <a href={`${REPO}/blob/main/docs/transferability.md`}>docs/transferability.md</a></span>
           </div>
         </li>
-        <li class="result-item" data-reveal style="--reveal-d: 2;">
+        <li class="result-item" data-reveal style="--reveal-d: 3;">
           <span class="result-num">02</span>
           <div class="result-body">
             <p>
@@ -193,28 +215,16 @@ const timelineAriaLabel = `Timeline of the ${durationS} second replay, in four z
             </span>
           </div>
         </li>
-        <li class="result-item" data-reveal style="--reveal-d: 3;">
+        <li class="result-item" data-reveal style="--reveal-d: 4;">
           <span class="result-num">03</span>
           <div class="result-body">
             <p>
               A localiser 19.4 metres wrong reported 8 centimetres of uncertainty. The detectors caught the transition, then went silent once the wrong pose settled. No monitor built on the robot's own estimates can see steady-state confident wrongness.
             </p>
-            <p>
-              Amber flagged {stataMeta.events} moments across the whole {stataMeta.duration_s}-second run: 2 while the robot was healthy, which the case log counts against the detector, {excursionEvents} while it was on the floor with no map, and {lostEvents} once it came back and settled into the wrong corridor. One more came after the ground truth ran out, too late for anything to grade.
-            </p>
             <span class="result-provenance">Source <a href={`${REPO}/blob/main/docs/finding-confidently-wrong.md`}>docs/finding-confidently-wrong.md</a></span>
           </div>
         </li>
       </ol>
-    </div>
-  </section>
-
-  <section class="py-[var(--space-section)]">
-    <div class="mx-auto max-w-[var(--max-w-content)] px-6">
-      <h2 class="section-label mb-6" data-reveal>What this means for a fleet</h2>
-      <p class="max-w-prose text-text-secondary leading-relaxed" data-reveal style="--reveal-d: 1;">
-        Monitoring rules tuned on one robot mean something different on the next one, and a localiser that has settled into a wrong pose looks healthy to any check that trusts its own estimate. Triage on a fleet is therefore a calibration-and-ground-truth problem before it is a tooling problem.
-      </p>
     </div>
   </section>
 
@@ -264,11 +274,9 @@ const timelineAriaLabel = `Timeline of the ${durationS} second replay, in four z
       <div class="footer-line">
         <a href={author.github}>github.com/thrmnn</a>
         <span class="footer-sep">·</span>
-        <span>Background and other work: <a href="https://theoalessandro.com">theoalessandro.com</a></span>
-        <span class="footer-sep">·</span>
         <span>recorded data: MIT Stata Center dataset (CC BY 3.0) · detections: <a href={REPO}>ros2-localization-triage</a></span>
         <span class="footer-sep">·</span>
-        <span>open source, every number recomputable</span>
+        <span>open source, every graded figure recomputable</span>
         <span class="footer-sep">·</span>
         <ThemeToggle />
       </div>
