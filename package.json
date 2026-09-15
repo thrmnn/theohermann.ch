@@ -1,7 +1,7 @@
 {
   "name": "theohermann.ch",
   "version": "1.0.0",
-  "description": "Robotics consulting landing — Théo Alessandro Hermann",
+  "description": "Robotics consulting landing: Théo Hermann",
   "private": true,
   "scripts": {
     "dev": "astro dev",
