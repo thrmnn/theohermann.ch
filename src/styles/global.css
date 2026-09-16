@@ -688,13 +688,13 @@
   bottom: 0;
 }
 .timeline-zone-healthy {
-  background: color-mix(in srgb, green 14%, transparent);
+  background: color-mix(in srgb, green 26%, transparent);
 }
 .timeline-zone-excursion {
   background: repeating-linear-gradient(135deg, var(--color-border) 0 1px, transparent 1px 6px);
 }
 .timeline-zone-lost {
-  background: color-mix(in srgb, orange 18%, transparent);
+  background: color-mix(in srgb, orange 30%, transparent);
 }
 .timeline-tick {
   position: absolute;
@@ -761,9 +761,9 @@
     vertical-align: baseline;
     border: 1px solid var(--color-border);
   }
-  .timeline-label-healthy::before { background: color-mix(in srgb, green 14%, transparent); }
+  .timeline-label-healthy::before { background: color-mix(in srgb, green 26%, transparent); }
   .timeline-label-excursion::before { background: repeating-linear-gradient(135deg, var(--color-border) 0 1px, transparent 1px 4px); }
-  .timeline-label-lost::before { background: color-mix(in srgb, orange 18%, transparent); }
+  .timeline-label-lost::before { background: color-mix(in srgb, orange 30%, transparent); }
 }
 .result-provenance {
   display: block;

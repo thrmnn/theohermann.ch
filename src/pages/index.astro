@@ -41,7 +41,8 @@ if (tf_jump + covariance_spike + pose_divergence !== stataMeta.events) {
 const lostMetres = stataMeta.lost_window.position_error_median_m.toFixed(1);
 const lostCm = Math.round(stataMeta.lost_window.amcl_reported_sigma_median_m * 100);
 const lostEvents = stataMeta.lost_window.events;
-const artifactCaption = `${stataMeta.platform} · ${stataMeta.duration_s} s of localiser output · ${stataMeta.events} detector events · MIT Stata Center dataset (CC BY 3.0)`;
+const artifactCaption = `${stataMeta.duration_s} s of localiser output · ${stataMeta.events} detector events`;
+const artifactProvenance = `${stataMeta.platform}, MIT Stata Center dataset (CC BY 3.0)`;
 
 const stataReplay = JSON.parse(
   readFileSync(join(process.cwd(), 'public/data/stata-replay.json'), 'utf8'),
@@ -75,7 +76,7 @@ const timelineAriaLabel = `Timeline of the ${durationS} second replay, in four z
   <section id="home" class="hero-section">
     <div class="mx-auto max-w-[var(--max-w-content)] px-6">
       <div class="hero-type">
-        <p class="eyebrow" data-reveal>One recording read back in public, the way you would get it.</p>
+        <p class="eyebrow" data-reveal>One public recording, written up the way you would get yours.</p>
         <h1 class="hero-name" data-reveal style="--reveal-d: 0;">A robot that was lost and did not know it.</h1>
       </div>
     </div>
@@ -114,11 +115,11 @@ const timelineAriaLabel = `Timeline of the ${durationS} second replay, in four z
             <dd>The ground truth is the dataset's own ceiling AprilTags, not any localiser. In the window they prove the belief {lostMetres} metres off, three checks fired {lostEvents} times.</dd>
           </div>
           <div>
-            <dt>What it does not</dt>
+            <dt>What it does not support</dt>
             <dd>Once the wrong pose settled, the checks went quiet, and so did the robot's own confidence number. Nothing built on the robot's own estimates can see that state; an external reference can.</dd>
           </div>
         </dl>
-        <span class="result-provenance">Source <a href={`${REPO}/blob/main/docs/finding-confidently-wrong.md`}>docs/finding-confidently-wrong.md</a></span>
+        <span class="result-provenance">Source <a href={`${REPO}/blob/main/docs/finding-confidently-wrong.md`}>docs/finding-confidently-wrong.md</a> · {artifactProvenance}</span>
       </div>
     </div>
   </section>
@@ -134,7 +135,7 @@ ros2 param get /amcl recovery_alpha_fast</code></pre>
           <span class="result-provenance">Source <a href={`${REPO}/blob/main/docs/finding-amcl-recovery.md`}>docs/finding-amcl-recovery.md</a></span>
         </li>
         <li class="finding-item" data-reveal style="--reveal-d: 2;">
-          <p>37 gap detections on a healthy laser: the bag writer had stalled for 27 seconds; the sensor never missed a beat. On its own stamps, zero; on the paired attack run, a genuine 22.7-second hole at 340 times the median interval.</p>
+          <p>37 gap detections on a healthy laser, in a recording from a Tiago-family robot: the bag writer had stalled for 27 seconds; the sensor never missed a beat. On its own stamps, zero; on the same robot's run under attack, a genuine 22.7-second hole at 340 times the median interval.</p>
           <span class="result-provenance">Source <a href={`${REPO}/blob/main/docs/finding-recorder-artifacts.md`}>docs/finding-recorder-artifacts.md</a></span>
         </li>
       </ul>
@@ -203,7 +204,7 @@ ros2 param get /amcl recovery_alpha_fast</code></pre>
       <div class="footer-line">
         <a href={author.github}>github.com/thrmnn</a>
         <span class="footer-sep">·</span>
-        <span>recorded data: MIT Stata Center dataset (CC BY 3.0), Universidad de León simulated-attacks dataset (CC BY 4.0) · detections: <a href={REPO}>ros2-localization-triage</a></span>
+        <span>recorded data: MIT Stata Center dataset (CC BY 3.0), Universidad de León clean-and-attack recordings (CC BY 4.0) · detections: <a href={REPO}>ros2-localization-triage</a></span>
         <span class="footer-sep">·</span>
         <span>open source, every number on this page recomputes</span>
         <span class="footer-sep">·</span>
