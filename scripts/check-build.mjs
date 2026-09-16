@@ -7,7 +7,7 @@ import { readFileSync, existsSync, readdirSync, statSync } from 'node:fs';
 import { inflateSync } from 'node:zlib';
 import { join } from 'node:path';
 
-const DIST = 'dist';
+const DIST = process.env.DIST || 'dist';
 
 // Group errors by category so the failure output triages itself instead of
 // dumping a flat list. CI logs become much easier to scan.
@@ -64,7 +64,7 @@ for (const a of ['og-default.png', 'favicon.svg', 'sitemap-index.xml']) {
 //    this script), plus the terms this landing must never echo.
 // Two private names the site must never carry; encoded so this public list is not itself the leak.
 const privateNames = ['TWFzc2lm', 'U2lsbGFnZQ=='].map((b) => Buffer.from(b, 'base64').toString());
-const forbidden = [...privateNames, 'theoh-io', 'Urban Science', 'false alarm', 'false-alarm', 'Alessandro'];
+const forbidden = [...privateNames, 'theoh-io', 'Urban Science', 'false alarm', 'false-alarm', 'Alessandro', "the robot's path", 'faults found'];
 for (const f of htmlFiles) {
   const html = readFileSync(f, 'utf8');
   for (const term of forbidden) {
