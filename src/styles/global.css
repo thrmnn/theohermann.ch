@@ -418,7 +418,7 @@
   /* svh-clamped, not vw: the min/max rem bounds keep short (mobile) viewports
      at roughly the old padding, while the svh term grows on tall desktop/
      laptop viewports so the artifact band's top edge creeps toward the fold. */
-  padding: 1.5rem 1.5rem 1.75rem;
+  padding: 1.5rem 0 1.75rem;
 }
 .hero-type {
   max-width: 44rem;
@@ -470,11 +470,10 @@
   max-width: var(--max-w-prose);
 }
 @media (min-width: 1024px) {
+  /* The strip is a timeline: it takes the full content width, and the three
+     fields of the reading sit under it as three columns. */
   .artifact-band-grid {
-    display: grid;
-    grid-template-columns: 7fr 5fr;
-    align-items: start;
-    gap: 3rem;
+    gap: 2.5rem;
   }
   .artifact-band-grid .hero-artifact {
     max-width: none;
@@ -482,6 +481,14 @@
   }
   .artifact-band-grid .artifact-explain {
     max-width: none;
+  }
+  .artifact-timeline {
+    height: 2.75rem;
+  }
+  .sample-fields {
+    max-width: none;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2.5rem;
   }
 }
 .artifact-caption {

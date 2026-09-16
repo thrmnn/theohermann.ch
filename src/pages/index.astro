@@ -105,12 +105,18 @@ const timelineAriaLabel = `Timeline of the ${durationS} second replay, in four z
       </div>
       <div class="artifact-explain sample-report" data-reveal style="--reveal-d: 2;">
         <dl class="sample-fields">
-          <dt>What happened</dt>
-          <dd>Two minutes of centimetre tracking on floor 2; then an elevator to a floor its map does not contain, and back. From there the localiser's belief sat {lostMetres} metres from where the robot stood, reporting {lostCm} centimetres of uncertainty.</dd>
-          <dt>What the evidence supports</dt>
-          <dd>The ground truth is the dataset's own ceiling AprilTags, not any localiser. In the window they prove the belief {lostMetres} metres off, three checks fired {lostEvents} times.</dd>
-          <dt>What it does not</dt>
-          <dd>Once the wrong pose settled, the checks went quiet, and so did the robot's own confidence number. Nothing built on the robot's own estimates can see that state; an external reference can.</dd>
+          <div>
+            <dt>What happened</dt>
+            <dd>Two minutes of centimetre tracking on floor 2; then an elevator to a floor its map does not contain, and back. From there the localiser's belief sat {lostMetres} metres from where the robot stood, reporting {lostCm} centimetres of uncertainty.</dd>
+          </div>
+          <div>
+            <dt>What the evidence supports</dt>
+            <dd>The ground truth is the dataset's own ceiling AprilTags, not any localiser. In the window they prove the belief {lostMetres} metres off, three checks fired {lostEvents} times.</dd>
+          </div>
+          <div>
+            <dt>What it does not</dt>
+            <dd>Once the wrong pose settled, the checks went quiet, and so did the robot's own confidence number. Nothing built on the robot's own estimates can see that state; an external reference can.</dd>
+          </div>
         </dl>
         <span class="result-provenance">Source <a href={`${REPO}/blob/main/docs/finding-confidently-wrong.md`}>docs/finding-confidently-wrong.md</a></span>
       </div>
