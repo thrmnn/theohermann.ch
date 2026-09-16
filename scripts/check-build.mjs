@@ -11,10 +11,12 @@ const DIST = 'dist';
 
 // Group errors by category so the failure output triages itself instead of
 // dumping a flat list. CI logs become much easier to scan.
+const WORD_BUDGET = 450;
 const groups = {
   pages: [],
   assets: [],
   forbidden_terms: [],
+  word_budget: [],
   identity: [],
   broken_links: [],
   asset_budget: [],
@@ -108,6 +110,20 @@ if (existsSync(STATA_META)) {
   const band = bandMatch ? bandMatch[0] : '';
   must('stata_caption', band.length > 0, 'artifact-band section not found in rendered homepage');
   must('stata_caption', !band.includes('AMCL'), 'hero band must not render "AMCL"');
+}
+
+// 5c. word budget above the contact block: a buyer decides in twenty seconds.
+//     Keyed on the contact section id, not on a section list or a literal count.
+{
+  const cut = home.indexOf('id="contact"');
+  must('word_budget', cut > 0, 'contact section not found in rendered homepage');
+  if (cut > 0) {
+    const above = home.slice(home.indexOf('<body'), cut);
+    const text = above.replace(/<script[\s\S]*?<\/script>/g, ' ').replace(/<[^>]+>/g, ' ').replace(/&[a-z#0-9]+;/g, ' ');
+    const words = text.trim().split(/\s+/).filter(Boolean).length;
+    must('word_budget', words <= WORD_BUDGET, `${words} words above the contact block (budget ${WORD_BUDGET})`);
+    console.log(`  words above the contact block: ${words} (budget ${WORD_BUDGET})`);
+  }
 }
 
 // 6. internal links resolve to a built file

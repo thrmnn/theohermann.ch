@@ -50,8 +50,11 @@ merge to `main` only on the owner's word.
 - Public repo (owner, 2026-09-08). Repo visibility is a disclosure question and
   is asked on its own if it ever comes up again.
 - Landing without a price; audit route unlinked and noindex.
-- Hero = the real Stata PR2 replay with its explanation beside it; the trail is
-  AMCL's estimated path, never "the robot's path"; never "faults found".
+- Hero = the Stata run read back as a sample of the written deliverable: the
+  timeline strip plus three fields (what happened, what the evidence supports,
+  what it does not), no canvas (ruling13, 2026-09-16, reopened on the owner's
+  word). The trail, wherever it is described, is AMCL's estimated path, never
+  "the robot's path"; never "faults found".
 - Robot names and ROS terms stay unglossed where the copy is README-verbatim.
 - No clients, no testimonials, no availability line.
 
