@@ -448,7 +448,7 @@
 .artifact-band {
   position: relative;
   z-index: 1;
-  padding: 0 1.5rem clamp(3.5rem, 8vw, 6rem);
+  padding: 0 0 clamp(3.5rem, 8vw, 6rem);
 }
 .artifact-band-grid {
   max-width: var(--max-w-content);
