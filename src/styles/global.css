@@ -902,3 +902,26 @@
     gap: 2.5rem;
   }
 }
+
+/* --- Card variant (ruling13 open question): the sample reads as an excerpt
+   of the written report, set apart from the page by a ruled frame. --- */
+.artifact-band-grid {
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--color-bg-elevated) 55%, transparent);
+  padding: 1.5rem;
+  max-width: calc(var(--max-w-content) - 3rem);
+}
+.artifact-band-grid .hero-artifact,
+.artifact-band-grid .artifact-explain {
+  padding: 0;
+}
+.sample-report {
+  border-top: 1px solid var(--color-border);
+  padding-top: 1.5rem;
+}
+@media (min-width: 1024px) {
+  .artifact-band-grid {
+    padding: 2rem 2.25rem;
+  }
+}
