@@ -59,10 +59,10 @@ const lostCm = Math.round(meta.lost_window.amcl_reported_sigma_median_m * 100);
       <div class="body">
         <p>On the recording behind that chart: the check most teams write first, against mine, at the same rate of flags on healthy poses ({base.detectors.healthy}%).</p>
         <table>
-          <thead><tr><th scope="col">Check</th><th scope="col">Lost poses flagged</th></tr></thead>
+          <thead><tr><th scope="col">Check</th><th scope="col">Healthy flagged</th><th scope="col">Lost flagged</th></tr></thead>
           <tbody>
-            <tr><td>Threshold on the localiser's own uncertainty, picked knowing the answer</td><td class="n">{base.sigma_hindsight.lost}%</td></tr>
-            <tr><td>Four detectors (covariance spikes, transform jumps, disagreement with the wheels, gaps in the sensor stream), frozen before the run</td><td class="n">{base.detectors.lost}%</td></tr>
+            <tr><td>Threshold on the localiser's own uncertainty, picked knowing the answer</td><td class="h">{base.sigma_hindsight.healthy}%</td><td class="n">{base.sigma_hindsight.lost}%</td></tr>
+            <tr><td>Four detectors (covariance spikes, transform jumps, disagreement with the wheels, gaps in the sensor stream), frozen before the run</td><td class="h">{base.detectors.healthy}%</td><td class="n">{base.detectors.lost}%</td></tr>
           </tbody>
         </table>
         <p class="note">
@@ -135,7 +135,8 @@ ros2 param get /amcl recovery_alpha_fast</code></pre>
   .btn, .btn:hover { text-decoration: none; }
   table { width: 100%; border-collapse: collapse; font-size: 16px; }
   th { text-align: left; font-weight: 600; font-size: 14px; color: var(--text-secondary); padding: 8px 0; border-bottom: 1px solid var(--text-primary); }
-  th:last-child, td.n { text-align: right; white-space: nowrap; padding-left: 16px; }
+  th + th, td.n, td.h { text-align: right; white-space: nowrap; padding-left: 16px; }
+  td.h { font-size: 18px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
   td { padding: 12px 0; border-bottom: 1px solid var(--border); vertical-align: top; }
   td.n { font-size: 28px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
   .note { font-size: 14px; color: var(--text-secondary); line-height: 1.5; }
@@ -155,10 +156,10 @@ ros2 param get /amcl recovery_alpha_fast</code></pre>
     .page, .foot { max-width: 68rem; padding: 0 48px; }
     .page { padding-top: 64px; }
     .hero { display: grid; grid-template-columns: 1fr 22rem; column-gap: 64px; align-items: end; }
-    .who, h1 { grid-column: 1 / -1; }
-    h1 { font-size: 52px; max-width: 18ch; margin-top: 28px; }
-    .hero-side { grid-column: 2; grid-row: 3; align-self: start; }
-    .hero-figure { grid-column: 1; grid-row: 3; margin-top: 0; }
+    .who { grid-column: 1 / -1; }
+    h1 { grid-column: 1; grid-row: 2; font-size: 52px; margin: 28px 0 0; }
+    .hero-side { grid-column: 2; grid-row: 2; }
+    .hero-figure { grid-column: 1 / -1; grid-row: 3; margin-top: 48px; max-width: 44rem; }
     section { display: grid; grid-template-columns: 18rem 1fr; column-gap: 64px; margin-top: 64px; padding-top: 40px; }
     section h2 { margin-bottom: 0; }
     .body { max-width: 40rem; }
