@@ -1,0 +1,69 @@
+---
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
+const { zones_s, poses } = JSON.parse(
+  readFileSync(join(process.cwd(), 'public/data/stata-series.json'), 'utf8'),
+) as { zones_s: { healthy_end_s: number; lost_start_s: number; lost_end_s: number }; poses: number[][] };
+
+const W = 520, H = 300, L = 56, R = 136, T = 14, B = 38;
+const tMax = 400;
+const yMin = 0.01, yMax = 100;
+const x = (t: number) => L + (t / tMax) * (W - L - R);
+const y = (m: number) => {
+  const v = Math.min(Math.max(m, yMin), yMax);
+  return T + ((Math.log10(yMax) - Math.log10(v)) / (Math.log10(yMax) - Math.log10(yMin))) * (H - T - B);
+};
+
+const median = (a: number[]) => {
+  const s = [...a].sort((p, q) => p - q);
+  return s.length % 2 ? s[(s.length - 1) / 2] : (s[s.length / 2 - 1] + s[s.length / 2]) / 2;
+};
+const lost = poses.filter((p) => p[0] >= zones_s.lost_start_s);
+const errMed = median(lost.map((p) => p[1]));
+const sigMed = median(lost.map((p) => p[2]));
+
+const ticks: [number, string][] = [[0.01, '1 cm'], [0.1, '10 cm'], [1, '1 m'], [10, '10 m'], [100, '100 m']];
+const xEnd = x(zones_s.lost_end_s);
+const label = `Position error against the ceiling AprilTag truth, and the localiser's reported uncertainty, over ${tMax} seconds. On floor 2 both stay under half a metre. After an elevator ride to a floor its map does not contain and back, the error sits near ${errMed.toFixed(1)} metres while the reported uncertainty stays near ${Math.round(sigMed * 100)} centimetres.`;
+---
+
+<figure class="chart">
+  <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={label}>
+    <rect class="gap" x={x(zones_s.healthy_end_s)} y={T} width={x(zones_s.lost_start_s) - x(zones_s.healthy_end_s)} height={H - T - B} />
+    <text class="gap-label" x={(x(zones_s.healthy_end_s) + x(zones_s.lost_start_s)) / 2} y={T + 18} text-anchor="middle">other floor,</text>
+    <text class="gap-label" x={(x(zones_s.healthy_end_s) + x(zones_s.lost_start_s)) / 2} y={T + 36} text-anchor="middle">not in the map,</text>
+    <text class="gap-label" x={(x(zones_s.healthy_end_s) + x(zones_s.lost_start_s)) / 2} y={T + 54} text-anchor="middle">no ground truth</text>
+    {ticks.map(([v, t]) => (
+      <g>
+        <line class="grid" x1={L} x2={W - R} y1={y(v)} y2={y(v)} />
+        <text class="tick" x={L - 6} y={y(v) + 4} text-anchor="end">{t}</text>
+      </g>
+    ))}
+    {[0, 100, 200, 300, 400].map((t) => (
+      <text class="tick" x={x(t)} y={H - B + 18} text-anchor="middle">{t} s</text>
+    ))}
+    {poses.map((p) => <circle class="sig" cx={x(p[0]).toFixed(1)} cy={y(p[2]).toFixed(1)} r="2" />)}
+    {poses.map((p) => <circle class="err" cx={x(p[0]).toFixed(1)} cy={y(p[1]).toFixed(1)} r="2" />)}
+    <text class="lab lab-err" x={xEnd + 10} y={y(errMed) - 4}>where it was:</text>
+    <text class="lab lab-err val" x={xEnd + 10} y={y(errMed) + 12}>{errMed.toFixed(1)} m off</text>
+    <text class="lab" x={xEnd + 10} y={y(sigMed) - 4}>what it reported:</text>
+    <text class="lab val" x={xEnd + 10} y={y(sigMed) + 12}>{Math.round(sigMed * 100)} cm uncertainty</text>
+  </svg>
+  <figcaption>One dot per pose. Black: the localiser's distance from where the robot actually stood, measured by the dataset's ceiling AprilTags. Grey: the uncertainty the localiser reported at the same moment. Log scale.</figcaption>
+</figure>
+
+<style>
+  .chart { margin: 0; }
+  svg { display: block; width: 100%; height: auto; overflow: visible; }
+  .gap { fill: var(--bg-accent); }
+  .gap-label { fill: var(--text-muted); font: 15px 'JetBrains Mono', monospace; }
+  .grid { stroke: var(--border); stroke-width: 1; }
+  .tick { fill: var(--text-muted); font: 15px 'JetBrains Mono', monospace; }
+  .err { fill: var(--text-primary); }
+  .sig { fill: var(--text-muted); opacity: 0.55; }
+  .lab { fill: var(--text-secondary); font: 16px 'Space Grotesk', sans-serif; }
+  .lab-err { fill: var(--text-primary); }
+  .val { font-weight: 700; }
+  figcaption { margin-top: 10px; font-size: 14px; line-height: 1.5; color: var(--text-secondary); }
+</style>

@@ -12,6 +12,10 @@ Outputs (stdlib only):
     public/data/stata-baseline.json    — the demo's sigma-vs-detectors table
                                           (results/stata/baseline.json, copied
                                           byte for byte; the demo recomputes it).
+    public/data/stata-series.json      — per matched pose: time, position error
+                                          against the AprilTag truth, reported
+                                          sigma. Matched by the demo's own
+                                          scripts/stata_baseline.py (needs numpy).
 """
 from __future__ import annotations
 
@@ -24,6 +28,7 @@ from pathlib import Path
 ROOT = Path(__file__).parent.parent
 OUT_META = ROOT / "public" / "data" / "stata-replay.meta.json"
 OUT_BASELINE = ROOT / "public" / "data" / "stata-baseline.json"
+OUT_SERIES = ROOT / "public" / "data" / "stata-series.json"
 
 # Same convention as the walls' int8 (value/127 -> [-1, 1]): poses use int16
 # so the trail renders at much finer resolution than the wall dots.
@@ -187,10 +192,20 @@ def main() -> int:
     OUT_META.write_text(json.dumps(meta, indent=2))
     OUT_BASELINE.write_bytes((stata_dir / "baseline.json").read_bytes())
 
+    sys.path.insert(0, str(clone / "scripts"))
+    import stata_baseline  # the demo's matcher, so the chart cannot drift from its numbers
+
+    series = {
+        "zones_s": zones_s,
+        "poses": [[round(t, 2), round(e, 3), round(sig, 3)] for t, e, sig in stata_baseline.matched().tolist()],
+    }
+    OUT_SERIES.write_text(json.dumps(series, separators=(",", ":")))
+
     print(
         f"✓ {OUT_META.name} — {OUT_META.stat().st_size} bytes, "
         f"{len(poses)} poses, {len(event_rows)} events, {t_max_s:.1f}s span\n"
-        f"✓ {OUT_BASELINE.name} — {OUT_BASELINE.stat().st_size} bytes"
+        f"✓ {OUT_BASELINE.name} — {OUT_BASELINE.stat().st_size} bytes\n"
+        f"✓ {OUT_SERIES.name} — {OUT_SERIES.stat().st_size} bytes, {len(series['poses'])} matched poses"
     )
     return 0
 

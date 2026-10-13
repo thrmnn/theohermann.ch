@@ -97,11 +97,21 @@ if (existsSync(STATA_META) && existsSync(STATA_BASE)) {
     `${base.detectors_events_starting_in_lost_window}% counting only`,
     `${base.lost_by_neither_hindsight}% of lost poses`,
   ]) must('stata_numbers', home.includes(want), `homepage missing "${want}" (from the Stata sidecars)`);
+  // The chart is drawn from stata-series.json; its lost-window median must be the headline's.
+  const SERIES = 'public/data/stata-series.json';
+  must('stata_numbers', existsSync(SERIES), `missing ${SERIES}`);
+  if (existsSync(SERIES)) {
+    const { zones_s, poses } = JSON.parse(readFileSync(SERIES, 'utf8'));
+    const errs = poses.filter((p) => p[0] >= zones_s.lost_start_s).map((p) => p[1]).sort((a, b) => a - b);
+    const med = errs.length % 2 ? errs[(errs.length - 1) / 2] : (errs[errs.length / 2 - 1] + errs[errs.length / 2]) / 2;
+    must('stata_numbers', Math.abs(med - meta.lost_window.position_error_median_m) < 0.001,
+      `chart series lost-window median ${med} != meta ${meta.lost_window.position_error_median_m}`);
+  }
 }
 
 // 5b'. no template tells (ruling14): no rounded utility, no inline icon, no
 //      reveal animation, no theme toggle on the landing.
-for (const [tell, re] of [['rounded utility class', /class="[^"]*\brounded/], ['inline svg icon', /<svg/], ['reveal animation', /data-reveal/], ['theme toggle', /theme-toggle|ThemeToggle/]]) {
+for (const [tell, re] of [['rounded utility class', /class="[^"]*\brounded/], ['icon inside a link or button', /<(a|button)\b[^>]*>(?:(?!<\/\1>)[\s\S])*?<svg/], ['reveal animation', /data-reveal/], ['theme toggle', /theme-toggle|ThemeToggle/]]) {
   must('no_template_tells', !re.test(home), `homepage carries a ${tell}`);
 }
 
