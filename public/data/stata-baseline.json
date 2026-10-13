@@ -1,0 +1,36 @@
+{
+  "n_healthy": 196,
+  "n_lost": 186,
+  "lost_more_than_1m_wrong": 99,
+  "pad_s": 2.0,
+  "sigma_frozen": {
+    "sigma_m": 0.35,
+    "lost": 35,
+    "healthy": 1,
+    "lost_padded": 47,
+    "healthy_padded": 3
+  },
+  "sigma_hindsight": {
+    "sigma_m": 0.098,
+    "lost": 46,
+    "healthy": 3,
+    "lost_padded": 59,
+    "healthy_padded": 4
+  },
+  "sigma_loose": {
+    "sigma_m": 0.05,
+    "lost": 83,
+    "healthy": 32,
+    "lost_padded": 95,
+    "healthy_padded": 41
+  },
+  "detectors": {
+    "lost": 69,
+    "healthy": 3,
+    "lost_padded": 85,
+    "healthy_padded": 9
+  },
+  "detectors_events_starting_in_lost_window": 57,
+  "lost_by_detectors_not_sigma_hindsight": 28,
+  "lost_by_neither_hindsight": 26
+}

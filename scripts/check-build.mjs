@@ -22,7 +22,8 @@ const groups = {
   asset_budget: [],
   bundle_budget: [],
   pdf_scan: [],
-  stata_caption: [],
+  stata_numbers: [],
+  no_template_tells: [],
   contrast: [],
   og_dimensions: [],
   em_dash: [],
@@ -76,40 +77,32 @@ for (const f of htmlFiles) {
 const home = readFileSync(join(DIST, 'index.html'), 'utf8');
 must('identity', home.includes('Théo Hermann'), 'canonical name missing from homepage');
 
-// 5b. stata replay caption must match the sidecar meta exactly — the numbers
-//     in the caption are rendered at build time from this file, so a drift
-//     between them means the copy stopped tracking the data.
+// 5b. every number in the Stata proof must match its sidecar: the copy is
+//     rendered at build time from these files, so a drift means the page
+//     stopped tracking the demo.
 const STATA_META = 'public/data/stata-replay.meta.json';
-if (existsSync(STATA_META)) {
+const STATA_BASE = 'public/data/stata-baseline.json';
+must('stata_numbers', existsSync(STATA_META) && existsSync(STATA_BASE), `missing ${STATA_META} or ${STATA_BASE}`);
+if (existsSync(STATA_META) && existsSync(STATA_BASE)) {
   const meta = JSON.parse(readFileSync(STATA_META, 'utf8'));
-  must(
-    'stata_caption',
-    home.includes(`${meta.duration_s} s`),
-    `stata caption missing "${meta.duration_s} s" (from ${STATA_META})`,
-  );
-  must(
-    'stata_caption',
-    home.includes(`${meta.events} detector events`),
-    `stata caption missing "${meta.events} detector events" (from ${STATA_META})`,
-  );
+  const base = JSON.parse(readFileSync(STATA_BASE, 'utf8'));
   const lostMetres = Number(meta.lost_window.position_error_median_m).toFixed(1);
   const lostCm = Math.round(meta.lost_window.amcl_reported_sigma_median_m * 100);
-  must(
-    'stata_caption',
-    home.includes(`${lostMetres} metres`),
-    `hero legend missing "${lostMetres} metres" (from ${STATA_META})`,
-  );
-  must(
-    'stata_caption',
-    home.includes(`${lostCm} centimetres`),
-    `hero legend missing "${lostCm} centimetres" (from ${STATA_META})`,
-  );
-  // Scoped to the artifact band only: the problem paragraph below cites
-  // stock Nav2 AMCL verbatim, so a bare home.includes('AMCL') would false-fire.
-  const bandMatch = home.match(/<section class="artifact-band">[\s\S]*?<\/section>/);
-  const band = bandMatch ? bandMatch[0] : '';
-  must('stata_caption', band.length > 0, 'artifact-band section not found in rendered homepage');
-  must('stata_caption', !band.includes('AMCL'), 'hero band must not render "AMCL"');
+  for (const want of [
+    `${lostMetres} metres wrong`,
+    `${lostCm} centimetres of uncertainty`,
+    `${base.sigma_hindsight.lost}%`,
+    `${base.detectors.lost}%`,
+    `(${base.detectors.healthy}%)`,
+    `${base.detectors_events_starting_in_lost_window}% counting only`,
+    `${base.lost_by_neither_hindsight}% of lost poses`,
+  ]) must('stata_numbers', home.includes(want), `homepage missing "${want}" (from the Stata sidecars)`);
+}
+
+// 5b'. no template tells (ruling14): no rounded utility, no inline icon, no
+//      reveal animation, no theme toggle on the landing.
+for (const [tell, re] of [['rounded utility class', /class="[^"]*\brounded/], ['inline svg icon', /<svg/], ['reveal animation', /data-reveal/], ['theme toggle', /theme-toggle|ThemeToggle/]]) {
+  must('no_template_tells', !re.test(home), `homepage carries a ${tell}`);
 }
 
 // 5c. word budget above the contact block: a buyer decides in twenty seconds.

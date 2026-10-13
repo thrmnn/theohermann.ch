@@ -36,19 +36,6 @@ const jsonLd = {
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self'" />
     <meta name="generator" content={Astro.generator} />
 
-    <!-- Anti-FOUC: set data-theme synchronously before first paint -->
-    <script is:inline>
-      (function () {
-        var stored = localStorage.getItem('theme');
-        if (stored === 'light' || stored === 'dark') {
-          document.documentElement.setAttribute('data-theme', stored);
-        }
-        // When no stored preference, let :root / @media (prefers-color-scheme)
-        // in CSS handle it: no data-theme attribute needed.
-        // Arm the scroll-reveal system (CSS only hides [data-reveal] once set).
-        document.documentElement.classList.add('reveal-ready');
-      })();
-    </script>
 
     <title>{pageTitle}</title>
     <meta name="description" content={pageDescription} />
@@ -87,28 +74,5 @@ const jsonLd = {
   </head>
   <body>
     <slot />
-    <script>
-      // Scroll-reveal: resolve [data-reveal] elements into place once, as
-      // they enter the viewport. Skipped entirely under reduced-motion.
-      (() => {
-        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-        if (!('IntersectionObserver' in window)) {
-          document.querySelectorAll('[data-reveal]').forEach((el) => el.classList.add('in-view'));
-          return;
-        }
-        const io = new IntersectionObserver(
-          (entries) => {
-            for (const e of entries) {
-              if (e.isIntersecting) {
-                e.target.classList.add('in-view');
-                io.unobserve(e.target);
-              }
-            }
-          },
-          { rootMargin: '0px 0px -8% 0px', threshold: 0.12 },
-        );
-        document.querySelectorAll('[data-reveal]').forEach((el) => io.observe(el));
-      })();
-    </script>
   </body>
 </html>

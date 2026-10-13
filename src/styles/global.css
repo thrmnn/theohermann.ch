@@ -388,24 +388,6 @@
    All non-essential motion is gated behind prefers-reduced-motion: no-preference.
    ========================================================================== */
 
-/* --- Scroll-reveal motion system ---
-   [data-reveal] elements resolve into place as they enter the viewport.
-   Gated behind .reveal-ready (set by JS) so a no-JS / failed-JS load shows
-   everything, and behind prefers-reduced-motion. --reveal-d staggers. */
-@media (prefers-reduced-motion: no-preference) {
-  .reveal-ready [data-reveal] {
-    opacity: 0;
-    transform: translateY(22px);
-    transition:
-      opacity var(--dur-3) var(--ease-out),
-      transform var(--dur-3) var(--ease-out);
-    transition-delay: calc(var(--reveal-d, 0) * 0.075s);
-  }
-  .reveal-ready [data-reveal].in-view {
-    opacity: 1;
-    transform: none;
-  }
-}
 
 
 /* ==========================================================================

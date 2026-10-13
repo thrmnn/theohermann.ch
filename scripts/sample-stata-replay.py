@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build the homepage artifact-band replay from a real AMCL run.
+"""Build the homepage's Stata sidecars from a real AMCL run.
 
 Source (read-only clone, path given as argv[1]): `results/stata/` in
 thrmnn/ros2-localization-triage — a PR2 robot in the MIT Stata Center
@@ -8,13 +8,10 @@ the tool's fault-detector events. Nothing here is hand-typed: every count in
 the sidecar is computed from the three input files below.
 
 Outputs (stdlib only):
-    public/data/stata-walls.bin        — walls, same 4-byte/point format as
-                                          sample-favela-pointcloud.py (int8 x,
-                                          int8 y, uint8 z=0, uint8 cat=0).
-    public/data/stata-replay.json      — poses (int16, finer than the walls'
-                                          int8) + detector events, sharing the
-                                          walls' affine frame.
-    public/data/stata-replay.meta.json — sidecar for the build-time caption.
+    public/data/stata-replay.meta.json — lost-window numbers for the headline.
+    public/data/stata-baseline.json    — the demo's sigma-vs-detectors table
+                                          (results/stata/baseline.json, copied
+                                          byte for byte; the demo recomputes it).
 """
 from __future__ import annotations
 
@@ -25,9 +22,8 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).parent.parent
-OUT_WALLS_BIN = ROOT / "public" / "data" / "stata-walls.bin"
-OUT_REPLAY_JSON = ROOT / "public" / "data" / "stata-replay.json"
 OUT_META = ROOT / "public" / "data" / "stata-replay.meta.json"
+OUT_BASELINE = ROOT / "public" / "data" / "stata-baseline.json"
 
 # Same convention as the walls' int8 (value/127 -> [-1, 1]): poses use int16
 # so the trail renders at much finer resolution than the wall dots.
@@ -127,8 +123,7 @@ def main() -> int:
         qx = max(-128, min(127, round(nx * 127)))
         qy = max(-128, min(127, round(ny * 127)))
         blob += struct.pack("bbBB", qx, qy, 0, 0)
-    OUT_WALLS_BIN.parent.mkdir(parents=True, exist_ok=True)
-    OUT_WALLS_BIN.write_bytes(blob)
+    OUT_META.parent.mkdir(parents=True, exist_ok=True)
 
     # --- replay.json: poses (trail) + events (detector fires), same frame ---
     poses.sort(key=lambda p: p["t_us"])
@@ -169,7 +164,7 @@ def main() -> int:
         "detectors": detector_names,
         "frame": {"center": [cx, cy], "scale": scale},
     }
-    OUT_REPLAY_JSON.write_text(json.dumps(replay, separators=(",", ":")))
+
 
     events_by_detector = {}
     for e in events_raw:
@@ -190,12 +185,12 @@ def main() -> int:
         "source": "https://github.com/thrmnn/ros2-localization-triage/tree/main/results/stata",
     }
     OUT_META.write_text(json.dumps(meta, indent=2))
+    OUT_BASELINE.write_bytes((stata_dir / "baseline.json").read_bytes())
 
     print(
-        f"✓ {OUT_WALLS_BIN.name} — {OUT_WALLS_BIN.stat().st_size} bytes, {len(walls)} wall points\n"
-        f"✓ {OUT_REPLAY_JSON.name} — {OUT_REPLAY_JSON.stat().st_size} bytes, "
+        f"✓ {OUT_META.name} — {OUT_META.stat().st_size} bytes, "
         f"{len(poses)} poses, {len(event_rows)} events, {t_max_s:.1f}s span\n"
-        f"✓ {OUT_META.name} — {OUT_META.stat().st_size} bytes"
+        f"✓ {OUT_BASELINE.name} — {OUT_BASELINE.stat().st_size} bytes"
     )
     return 0
 
