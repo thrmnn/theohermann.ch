@@ -38,7 +38,7 @@ const lostCm = Math.round(meta.lost_window.amcl_reported_sigma_median_m * 100);
 
     <h1>A localiser {lostMetres} metres wrong reported {lostCm} centimetres of uncertainty.</h1>
     <p class="lede">
-      Your robots already record what happened. I read those recordings and tell you, in writing, what they show about an incident and what they cannot. Nothing goes on the robot.
+      Your ROS 2 robots already record what happened. I read those recordings and tell you, in writing, what they show about an incident and what they cannot. Nothing goes on the robot.
     </p>
     <p class="ask">
       <a class="btn" href={mailto}>Send me one incident</a>
@@ -47,12 +47,12 @@ const lostCm = Math.round(meta.lost_window.amcl_reported_sigma_median_m * 100);
 
     <section>
       <h2>If your monitoring trusts the robot's own uncertainty</h2>
-      <p>This is the check most teams write first, against mine, on the same recording, at the same rate of flags on healthy poses ({base.detectors.healthy}%).</p>
+      <p>On the recording behind that sentence: the check most teams write first, against mine, at the same rate of flags on healthy poses ({base.detectors.healthy}%).</p>
       <table>
         <thead><tr><th scope="col">Check</th><th scope="col">Lost poses flagged</th></tr></thead>
         <tbody>
           <tr><td>Threshold on the localiser's own uncertainty, picked knowing the answer</td><td class="n">{base.sigma_hindsight.lost}%</td></tr>
-          <tr><td>Four detectors, frozen before the run</td><td class="n">{base.detectors.lost}%</td></tr>
+          <tr><td>Four detectors (covariance spikes, transform jumps, disagreement with the wheels, gaps in the sensor stream), frozen before the run</td><td class="n">{base.detectors.lost}%</td></tr>
         </tbody>
       </table>
       <p class="note">
@@ -67,7 +67,7 @@ const lostCm = Math.round(meta.lost_window.amcl_reported_sigma_median_m * 100);
 
     <section>
       <h2>If you run Nav2, check this in one minute</h2>
-      <p>Stock Nav2 ships AMCL with both recovery terms at 0.0, which leaves kidnap recovery switched off unless you change them.</p>
+      <p>Stock Nav2 ships AMCL with both recovery terms at 0.0, which leaves kidnap recovery switched off unless you change them. If both print 0.0, a displaced robot has no mechanism to conclude it is lost.</p>
       <pre><code>ros2 param get /amcl recovery_alpha_slow
 ros2 param get /amcl recovery_alpha_fast</code></pre>
       <p class="note"><a href={`${REPO}/blob/main/docs/finding-amcl-recovery.md`}>Source</a></p>
@@ -82,7 +82,7 @@ ros2 param get /amcl recovery_alpha_fast</code></pre>
         <a class="btn" href={mailto}>Send me one incident</a>
         <a href={author.cal} rel="noopener">or book 20 minutes</a>
       </p>
-      <p class="note">{author.email}</p>
+      <p class="mail"><a href={mailto}>{author.email}</a></p>
     </section>
   </main>
 
@@ -120,5 +120,6 @@ ros2 param get /amcl recovery_alpha_fast</code></pre>
   .note { font-size: 14px; color: var(--text-secondary); line-height: 1.5; }
   pre { margin-top: 12px; padding: 12px 14px; border: 1px solid var(--border); overflow-x: auto; font: 14px/1.5 'JetBrains Mono', monospace; }
   #contact .ask { margin-top: 24px; }
+  .mail { font-size: 16px; margin-top: 12px; }
   .foot { padding-top: 48px; padding-bottom: 40px; font-size: 13px; color: var(--text-secondary); }
 </style>
