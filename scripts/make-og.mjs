@@ -30,7 +30,7 @@ const FONT_DIR = join(ROOT, 'scripts/assets/fonts');
 const OUT = join(ROOT, 'public/og-default.png');
 
 const { author } = await import(join(ROOT, 'src/data/author.ts'));
-const tagline = 'I read robot navigation logs.';
+const tagline = "When an autonomous robot fails in ways your logs don't explain, I find the real cause and prove it, independently.";
 
 const WIDTH = 1200;
 const HEIGHT = 630;

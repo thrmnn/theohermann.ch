@@ -1,7 +1,7 @@
 export const siteConfig = {
   title: 'Théo Hermann',
   description:
-    'I read robot navigation logs. I froze four fault detectors before I looked at any results, ran them unchanged on 108 minutes of recordings from five platforms, and published what they caught, what they missed, and the raw counts behind both.',
+    "When an autonomous robot fails in ways your logs don't explain, I find the real cause and prove it, independently.",
   url: 'https://theohermann.ch',
   author: 'Théo Hermann',
   ogImage: '/og-default.png',

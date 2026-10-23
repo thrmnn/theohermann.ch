@@ -6,16 +6,20 @@ Read this before touching the repo. The site is LIVE at https://theohermann.ch
 
 ## 1. What this site is
 
-The robotics consulting landing page, and only that. One reader: a buyer who
-runs ROS 2 fleets and decides in twenty seconds whether to reply to a cold
-email. It is one practice, one worked example in public: ROS 2 fleet log
-triage, proven on the evidence of the public demo repo
-`github.com/thrmnn/ros2-localization-triage`.
+The practice page, under the owner's own name, and only that (studio decision
+D-2026-10-21-19; owner pick 2026-10-23). One reader: an engineering lead at a
+robot maker who decides in twenty seconds whether to book a call. The h1 is the
+owner's pitch, verbatim: "When an autonomous robot fails in ways your logs
+don't explain, I find the real cause and prove it, independently." The flagship
+is incident investigation on the hard cases; the recurring offer is a release
+check. The worked example stays the public demo repo
+`github.com/thrmnn/ros2-localization-triage`. No studio name in public.
 
-The personal research portfolio is theoalessandro.com, a separate repo
-(`~/Perso/thrmnn.github.io`). The two sites never link to each other from a
-page a peer or a buyer reaches. One identity line with dated stints is
-allowed here; no CV section, no research, no publications.
+The personal portfolio is theoalessandro.com, a separate repo
+(`~/Perso/thrmnn.github.io`). Superseded 2026-10-23: the two sites now link to
+each other (the .com's Practice card and hero button; here, one footer line).
+One identity line with dated stints is allowed here; no CV section, no
+research, no publications.
 
 ## 2. Non-negotiables (the build gate enforces most of them)
 
@@ -53,7 +57,9 @@ merge to `main` only on the owner's word.
 - Landing without a price; audit route unlinked and noindex.
 - Page = ruling14 (2026-10-13, owner: "ridiculously simple efficiency, high
   credibility and impact for conversion"): one column, the README's 19.4 m / 8 cm
-  sentence as the h1, the ask on the first phone screen, three examples each
+  sentence leading the chart (it was the h1 until 2026-10-23, when the owner
+  picked the studio pitch), the ask on the first phone screen ("Book a 20-minute
+  call", the incident by email as the second link), three examples each
   opening with its intent ("If your ..."), the sigma-vs-detectors table at an
   equal healthy flag rate, zero radius, no icons, no accent fill, no reveal, no
   timeline strip. Rejected list in site-review/docs/ruling14-ch.md. The trail, wherever it is described, is AMCL's estimated path, never
