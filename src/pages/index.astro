@@ -10,6 +10,7 @@ import { join } from 'node:path';
 //   TurtleBot3 to Tiago, "fired five times"         README.md, docs/transferability.md
 //   recovery_alpha 0.0, the two ros2 param lines    docs/finding-amcl-recovery.md
 //   rosbag2 or ROS 1 .bag; reads from disk, calls nothing outside it   README.md
+//   four minutes on a floor the map does not contain, wrong corridor    docs/finding-confidently-wrong.md
 // Everything else renders from public/data/*.json, written by
 // scripts/sample-stata-replay.py from the demo's results/stata/.
 const REPO = 'https://github.com/thrmnn/ros2-localization-triage';
@@ -49,7 +50,7 @@ const lostCm = Math.round(meta.lost_window.amcl_reported_sigma_median_m * 100);
         </p>
       </div>
       <div class="hero-figure">
-        <p class="figure-lead">One example, on a public recording: a localiser {lostMetres} metres wrong reported {lostCm} centimetres of uncertainty.</p>
+        <p class="figure-lead">One example, on a public recording: a localiser {lostMetres} metres wrong reported {lostCm} centimetres of uncertainty. The cause: after four minutes on a floor its map did not contain, it relocalised to the wrong corridor and stayed there.</p>
         <StataChart />
         <p class="note">A PR2 in MIT's Stata Center, from a public dataset, replayed and graded by me. <a href={`${REPO}/blob/main/docs/finding-confidently-wrong.md`}>Source</a></p>
       </div>
@@ -97,7 +98,7 @@ ros2 param get /amcl recovery_alpha_fast</code></pre>
           <li><strong>I read it offline.</strong> Analysis runs on your infrastructure or under NDA on mine; nothing is retained after handover. The tool reads the bag from disk and calls nothing outside it.</li>
           <li><strong>You get a written account</strong>: what happened, what the evidence supports, and what it does not.</li>
         </ol>
-        <p>Before each software release: independent evidence, on your own recordings, of whether the new version behaves worse than the last.</p>
+        <p><strong>Before each software release</strong>, the same checks run on your recordings of the old version and the new one, and you get in writing what changed.</p>
         <p class="ask">
           <a class="btn" href={author.cal} rel="noopener">Book a 20-minute call</a>
           <a href={mailto}>or send me one incident</a>
