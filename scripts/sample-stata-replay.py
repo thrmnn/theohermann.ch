@@ -16,6 +16,12 @@ Outputs (stdlib only):
                                           against the AprilTag truth, reported
                                           sigma. Matched by the demo's own
                                           scripts/stata_baseline.py (needs numpy).
+    public/data/stata-plan.json        — the floor plan over the hero chart: the
+                                          longest stretch of the lost window where
+                                          the localiser is sure to within 20 cm
+                                          while the ceiling tags put the robot more
+                                          than 20 m away, both trails and the wall
+                                          cells around them.
 """
 from __future__ import annotations
 
@@ -29,6 +35,9 @@ ROOT = Path(__file__).parent.parent
 OUT_META = ROOT / "public" / "data" / "stata-replay.meta.json"
 OUT_BASELINE = ROOT / "public" / "data" / "stata-baseline.json"
 OUT_SERIES = ROOT / "public" / "data" / "stata-series.json"
+OUT_PLAN = ROOT / "public" / "data" / "stata-plan.json"
+# Map frame, metres: both trails of the stretch and the walls between them.
+PLAN_CROP = (16.0, 50.0, 117.0, 158.0)
 
 # Same convention as the walls' int8 (value/127 -> [-1, 1]): poses use int16
 # so the trail renders at much finer resolution than the wall dots.
@@ -96,6 +105,46 @@ def read_zone_bounds(grade_script: Path) -> tuple[int, tuple[float, float, float
     z = re.search(r"GT_ZONES_S\s*=\s*\(([^)]+)\)", src).group(1)
     a, b, c = (float(v) for v in z.split(","))
     return t0, (a, b, c)
+
+
+def plan(stata_dir: Path) -> dict:
+    import numpy as np
+
+    a = np.loadtxt(stata_dir / "amcl_poses.csv", delimiter=",", comments="#")
+    g = np.loadtxt(stata_dir / "gt_part3_floor2.csv", delimiter=",")
+    t0 = a[0, 0]
+    a = a[(a[:, 0] >= g[0, 0]) & (a[:, 0] <= g[-1, 0])]
+    gi = np.abs(g[:, 0][None, :] - a[:, 0][:, None]).argmin(1)
+    err = np.hypot(a[:, 1] - g[gi, 1], a[:, 2] - g[gi, 2])
+    sure = (a[:, 4] < 0.20) & (err > 20)
+    best, cur = (0, 0), None
+    for i, ok in enumerate(list(sure) + [False]):
+        if ok and cur is None:
+            cur = i
+        elif not ok and cur is not None:
+            if i - cur > best[1] - best[0]:
+                best = (cur, i)
+            cur = None
+    i0, i1 = best
+    if i1 == i0:
+        sys.exit("✗ no stretch where the localiser is sure and the tags disagree by 20 m")
+    s = a[i0:i1]
+    gm = (g[:, 0] >= s[0, 0]) & (g[:, 0] <= s[-1, 0])
+    x0, x1, y0, y1 = PLAN_CROP
+    w = np.loadtxt(stata_dir / "walls.csv", delimiter=",", comments="#")
+    w = w[(w[:, 0] >= x0) & (w[:, 0] <= x1) & (w[:, 1] >= y0) & (w[:, 1] <= y1)]
+    r2 = lambda pts: [[round(float(x), 2), round(float(y), 2)] for x, y in pts]
+    return {
+        "crop_m": list(PLAN_CROP),
+        "t_start_s": round((s[0, 0] - t0) / 1e6, 1),
+        "t_end_s": round((s[-1, 0] - t0) / 1e6, 1),
+        "error_end_m": round(float(err[i1 - 1])),
+        "sigma_cm": [round(float(s[:, 4].min() * 100)), round(float(s[:, 4].max() * 100))],
+        # Wall points snapped to 10 cm cells, as the plan draws them.
+        "walls_dm": sorted({(round((x - x0) * 10), round((y1 - y) * 10)) for x, y in w.tolist()}),
+        "said": r2(s[:, 1:3]),
+        "was": r2(g[gm][:, 1:3]),
+    }
 
 
 def main() -> int:
@@ -200,12 +249,14 @@ def main() -> int:
         "poses": [[round(t, 2), round(e, 3), round(sig, 3)] for t, e, sig in stata_baseline.matched().tolist()],
     }
     OUT_SERIES.write_text(json.dumps(series, separators=(",", ":")))
+    OUT_PLAN.write_text(json.dumps(plan(stata_dir), separators=(",", ":")))
 
     print(
         f"✓ {OUT_META.name} — {OUT_META.stat().st_size} bytes, "
         f"{len(poses)} poses, {len(event_rows)} events, {t_max_s:.1f}s span\n"
         f"✓ {OUT_BASELINE.name} — {OUT_BASELINE.stat().st_size} bytes\n"
-        f"✓ {OUT_SERIES.name} — {OUT_SERIES.stat().st_size} bytes, {len(series['poses'])} matched poses"
+        f"✓ {OUT_SERIES.name} — {OUT_SERIES.stat().st_size} bytes, {len(series['poses'])} matched poses\n"
+        f"✓ {OUT_PLAN.name} — {OUT_PLAN.stat().st_size} bytes"
     )
     return 0
 

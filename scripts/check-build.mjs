@@ -11,7 +11,7 @@ const DIST = process.env.DIST || 'dist';
 
 // Group errors by category so the failure output triages itself instead of
 // dumping a flat list. CI logs become much easier to scan.
-const WORD_BUDGET = 450;
+const WORD_BUDGET = 420;
 const groups = {
   pages: [],
   assets: [],
@@ -89,8 +89,8 @@ if (existsSync(STATA_META) && existsSync(STATA_BASE)) {
   const lostMetres = Number(meta.lost_window.position_error_median_m).toFixed(1);
   const lostCm = Math.round(meta.lost_window.amcl_reported_sigma_median_m * 100);
   for (const want of [
-    `${lostMetres} metres wrong`,
-    `${lostCm} centimetres of uncertainty`,
+    `median ${lostMetres} m off`,
+    `median ${lostCm} cm`,
     `${base.sigma_hindsight.lost}%`,
     `${base.detectors.lost}%`,
     `(${base.detectors.healthy}%)`,
@@ -117,12 +117,14 @@ for (const [tell, re] of [['rounded utility class', /class="[^"]*\brounded/], ['
 
 // 5c. word budget above the contact block: a buyer decides in twenty seconds.
 //     Keyed on the contact section id, not on a section list or a literal count.
+//     Prose only: the labels inside the plan and the chart are read as part of
+//     the picture, and pictures are how the owner asked to cut reading (27 Oct).
 {
   const cut = home.indexOf('id="contact"');
   must('word_budget', cut > 0, 'contact section not found in rendered homepage');
   if (cut > 0) {
     const above = home.slice(home.indexOf('<body'), cut);
-    const text = above.replace(/<script[\s\S]*?<\/script>/g, ' ').replace(/<[^>]+>/g, ' ').replace(/&[a-z#0-9]+;/g, ' ');
+    const text = above.replace(/<script[\s\S]*?<\/script>/g, ' ').replace(/<svg[\s\S]*?<\/svg>/g, ' ').replace(/<[^>]+>/g, ' ').replace(/&[a-z#0-9]+;/g, ' ');
     const words = text.trim().split(/\s+/).filter(Boolean).length;
     must('word_budget', words <= WORD_BUDGET, `${words} words above the contact block (budget ${WORD_BUDGET})`);
     console.log(`  words above the contact block: ${words} (budget ${WORD_BUDGET})`);

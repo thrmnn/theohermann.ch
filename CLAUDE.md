@@ -33,9 +33,8 @@ research, no publications.
 - No `theoh-io`, no phone number, no price on the landing. The 2,200 EUR
   sentence lives only on the unlinked `/audit` route, held on local branch
   `hold/audit-route`, never pushed until the owner says the post day has passed.
-- Every number on the page comes from `public/data/stata-replay.meta.json` or
-  `public/data/stata-baseline.json` (both written by
-  `scripts/sample-stata-replay.py` from the demo repo) or from the demo README
+- Every number on the page comes from `public/data/stata-*.json` (all written
+  by `scripts/sample-stata-replay.py` from the demo repo) or from the demo README
   verbatim. Re-audit against the demo's HEAD before every
   merge; the demo has withdrawn a headline number once already (1,880).
 - Never fabricate a value. Placeholder plus a flag, never a plausible guess.
@@ -56,9 +55,9 @@ merge to `main` only on the owner's word.
   is asked on its own if it ever comes up again.
 - Landing without a price; audit route unlinked and noindex.
 - Page = ruling14 (2026-10-13, owner: "ridiculously simple efficiency, high
-  credibility and impact for conversion"): one column, the README's 19.4 m / 8 cm
-  sentence leading the chart (it was the h1 until 2026-10-23, when the owner
-  picked the studio pitch), the ask on the first phone screen ("Book a 20-minute
+  credibility and impact for conversion"): one column, the proof picture (since the owner's
+  pick of 2026-10-27, chvis-01 C: the floor plan, its cause, then the chart
+  whose labels carry the README's 19.4 m / 8 cm medians), the ask on the first phone screen ("Book a 20-minute
   call", the incident by email as the second link), three examples each
   opening with its intent ("If your ..."), the sigma-vs-detectors table at an
   equal healthy flag rate, zero radius, no icons, no accent fill, no reveal, no
