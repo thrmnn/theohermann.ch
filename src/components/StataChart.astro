@@ -29,25 +29,25 @@ const label = `Position error against the ceiling AprilTag truth, and the locali
 ---
 
 <figure class="chart">
-  <p class="reading"><strong>Black:</strong> where the robot actually was, from markers on the ceiling. <strong>Grey:</strong> how sure its localiser said it was. After the elevator, black jumps to metres; grey stays at centimetres.</p>
+  <p class="reading"><strong>Black:</strong> how far its reported position was from the ceiling markers. <strong>Grey:</strong> how sure its localiser said it was. After the elevator, black jumps to metres; grey stays at centimetres.</p>
   <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={label}>
     <rect class="gap" x={x(zones_s.healthy_end_s)} y={T} width={x(zones_s.lost_start_s) - x(zones_s.healthy_end_s)} height={H - T - B} />
-    <text class="gap-label" x={(x(zones_s.healthy_end_s) + x(zones_s.lost_start_s)) / 2} y={T + 20} text-anchor="middle">elevator to a floor</text>
-    <text class="gap-label" x={(x(zones_s.healthy_end_s) + x(zones_s.lost_start_s)) / 2} y={T + 40} text-anchor="middle">not in its map:</text>
-    <text class="gap-label" x={(x(zones_s.healthy_end_s) + x(zones_s.lost_start_s)) / 2} y={T + 60} text-anchor="middle">no ground truth</text>
+    {['elevator to', 'a floor not', 'in its map:', 'no markers'].map((line, i) => (
+      <text class="gap-label" x={(x(zones_s.healthy_end_s) + x(zones_s.lost_start_s)) / 2} y={T + 20 * (i + 1)} text-anchor="middle">{line}</text>
+    ))}
     {ticks.map(([v, t]) => (
       <g>
         <line class="grid" x1={L} x2={W - R} y1={y(v)} y2={y(v)} />
         <text class="tick" x={L - 6} y={y(v) + 4} text-anchor="end">{t}</text>
       </g>
     ))}
-    {[100, 200, 300, 400].map((t) => (
+    {[0, 100, 200, 300, 400].map((t) => (
       <text class="tick" x={x(t)} y={H - B + 24} text-anchor="middle">{t} s</text>
     ))}
     {poses.map((p) => <circle class="sig" cx={x(p[0]).toFixed(1)} cy={y(p[2]).toFixed(1)} r="2" />)}
     {poses.map((p) => <circle class="err" cx={x(p[0]).toFixed(1)} cy={y(p[1]).toFixed(1)} r="2" />)}
-    <text class="lab lab-err" x={xEnd + 10} y={y(errMed) - 4}>where it was,</text>
-    <text class="lab lab-err val" x={xEnd + 10} y={y(errMed) + 12}>median {errMed.toFixed(1)} m off</text>
+    <text class="lab lab-err" x={xEnd + 10} y={y(errMed) - 4}>how far off,</text>
+    <text class="lab lab-err val" x={xEnd + 10} y={y(errMed) + 12}>median {errMed.toFixed(1)} m</text>
     <text class="lab" x={xEnd + 10} y={y(sigMed) - 4}>what it reported,</text>
     <text class="lab val" x={xEnd + 10} y={y(sigMed) + 12}>median {Math.round(sigMed * 100)} cm</text>
   </svg>

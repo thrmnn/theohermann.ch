@@ -89,7 +89,7 @@ if (existsSync(STATA_META) && existsSync(STATA_BASE)) {
   const lostMetres = Number(meta.lost_window.position_error_median_m).toFixed(1);
   const lostCm = Math.round(meta.lost_window.amcl_reported_sigma_median_m * 100);
   for (const want of [
-    `median ${lostMetres} m off`,
+    `median ${lostMetres} m<`,
     `median ${lostCm} cm`,
     `${base.sigma_hindsight.lost}%`,
     `${base.detectors.lost}%`,
