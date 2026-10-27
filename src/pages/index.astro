@@ -11,13 +11,18 @@ import { join } from 'node:path';
 //   TurtleBot3 to Tiago, "fired five times"         README.md, docs/transferability.md
 //   recovery_alpha 0.0, the two ros2 param lines    docs/finding-amcl-recovery.md
 //   rosbag2 or ROS 1 .bag; reads from disk, calls nothing outside it   README.md
-//   four minutes on a floor the map does not contain, wrong corridor    docs/finding-confidently-wrong.md
+//   wrong corridor                                                      docs/finding-confidently-wrong.md
+//   from 2027: Machinery Regulation (EU) 2023/1230, tracing logs from 20 Jan 2027 (EUR-Lex, linked)
 // Everything else renders from public/data/*.json, written by
 // scripts/sample-stata-replay.py from the demo's results/stata/.
 const REPO = 'https://github.com/thrmnn/ros2-localization-triage';
+const REGULATION = 'https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32023R1230';
 const mailto = `mailto:${author.email}?subject=${encodeURIComponent('One incident')}`;
 
 const readJson = (f: string) => JSON.parse(readFileSync(join(process.cwd(), 'public/data', f), 'utf8'));
+// From the last ceiling-marker pose on floor 2 to the first one after the robot came back.
+const { zones_s } = readJson('stata-replay.meta.json') as { zones_s: { healthy_end_s: number; lost_start_s: number } };
+const offMapMinutes = ['one', 'two', 'three', 'four', 'five'][Math.round((zones_s.lost_start_s - zones_s.healthy_end_s) / 60) - 1];
 const base = readJson('stata-baseline.json') as {
   sigma_hindsight: { lost: number; healthy: number };
   detectors: { lost: number; healthy: number };
@@ -38,7 +43,7 @@ if (base.sigma_hindsight.healthy !== base.detectors.healthy) {
       <h1>When an autonomous robot fails in ways your logs don't explain, I find the real cause and prove it, independently.</h1>
       <div class="hero-side">
         <p class="lede">
-          Your tools collect the data; I deliver the verdict and the evidence your team and, from 2027, your safety assessors will ask for.
+          Your tools collect the data; I deliver the verdict and the evidence your team and, <a href={REGULATION}>from 2027</a>, your safety assessors will ask for.
         </p>
         <p class="ask">
           <a class="btn" href={author.cal} rel="noopener">Book a 20-minute call</a>
@@ -48,7 +53,7 @@ if (base.sigma_hindsight.healthy !== base.detectors.healthy) {
       <div class="hero-figure">
         <p class="figure-lead">One example, on a public recording: the robot was in one corridor, and reported, sure to a few centimetres, that it was in another.</p>
         <StataPlan />
-        <p class="cause">The cause: after four minutes on a floor its map did not contain, it relocalised to the wrong corridor and stayed there.</p>
+        <p class="cause">The cause: after about {offMapMinutes} minutes on a floor its map did not contain, it relocalised to the wrong corridor and stayed there.</p>
         <StataChart />
         <p class="note">A PR2 in MIT's Stata Center, from a public dataset, replayed and graded by me. <a href={`${REPO}/blob/main/docs/finding-confidently-wrong.md`}>Source</a></p>
       </div>
