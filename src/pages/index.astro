@@ -62,7 +62,7 @@ if (base.sigma_hindsight.healthy !== base.detectors.healthy) {
     <section>
       <h2>If your monitoring trusts the robot's own uncertainty</h2>
       <div class="body">
-        <p>On the recording behind that example: the check most teams write first, against mine, at the same rate of flags on healthy poses ({base.detectors.healthy}%).</p>
+        <p>On the recording behind that example: the check most teams write first, tuned in hindsight, against mine, at the same rate of flags on healthy poses ({base.detectors.healthy}%).</p>
         <table>
           <thead><tr><th scope="col">Check</th><th scope="col">Healthy flagged</th><th scope="col">Lost flagged</th></tr></thead>
           <tbody>
@@ -86,10 +86,10 @@ if (base.sigma_hindsight.healthy !== base.detectors.healthy) {
     <section>
       <h2>If you run Nav2, check this in one minute</h2>
       <div class="body">
-        <p>Stock Nav2 ships AMCL with both recovery terms at 0.0, which leaves kidnap recovery switched off unless you change them. If both print 0.0, a displaced robot has no mechanism to conclude it is lost.</p>
+        <p>Stock Nav2 ships AMCL with both recovery terms at 0.0, which leaves kidnap recovery off unless you change them. If both print 0.0, a displaced robot has no mechanism to conclude it is lost.</p>
         <pre><code>ros2 param get /amcl recovery_alpha_slow
 ros2 param get /amcl recovery_alpha_fast</code></pre>
-        <p class="note"><a href={`${REPO}/blob/main/docs/finding-amcl-recovery.md`}>Source</a></p>
+        <p class="note"><a href={`${REPO}/blob/main/docs/finding-amcl-recovery.md`}>Source</a> · <a href="https://github.com/ros-navigation/navigation2/blob/jazzy/nav2_bringup/params/nav2_params.yaml">Nav2 defaults</a></p>
       </div>
     </section>
 
