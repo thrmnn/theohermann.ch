@@ -95,7 +95,7 @@ if (existsSync(STATA_META) && existsSync(STATA_BASE)) {
     `${base.detectors.lost}%`,
     `(${base.detectors.healthy}%)`,
     `${base.detectors_events_starting_in_lost_window}% counting only`,
-    `${base.lost_by_neither_hindsight}% of lost poses`,
+    `flagged ${base.lost_by_neither_hindsight}% of the positions it reported while lost`,
   ]) must('stata_numbers', home.includes(want), `homepage missing "${want}" (from the Stata sidecars)`);
   // The chart is drawn from stata-series.json; its lost-window median must be the headline's.
   const SERIES = 'public/data/stata-series.json';

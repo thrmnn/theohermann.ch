@@ -10,7 +10,7 @@ import { join } from 'node:path';
 // source in the demo at github.com/thrmnn/ros2-localization-triage:
 //   TurtleBot3 to Tiago, "fired five times"         README.md, docs/transferability.md
 //   recovery_alpha 0.0, the two ros2 param lines    docs/finding-amcl-recovery.md
-//   rosbag2 or ROS 1 .bag; reads from disk, calls nothing outside it   README.md
+//   ROS 1 or 2 bag file; reads from disk, calls nothing outside it    README.md
 //   wrong corridor                                                      docs/finding-confidently-wrong.md
 //   from 2027: Machinery Regulation (EU) 2023/1230, tracing logs from 20 Jan 2027 (EUR-Lex, linked)
 // Everything else renders from public/data/*.json, written by
@@ -57,7 +57,7 @@ if (base.sigma_hindsight.healthy !== base.detectors.healthy) {
         </p>
       </div>
       <div class="hero-figure">
-        <p class="cause">The cause: after about {offMapMinutes} minutes on a floor its map did not contain, it relocalised to the wrong corridor and stayed there.</p>
+        <p class="cause">The cause: after about {offMapMinutes} minutes on a floor its map did not contain, it decided it was in the wrong corridor and stayed there.</p>
         <StataChart />
         <p class="note">A PR2 in MIT's Stata Center, from a public dataset, replayed and graded by me. <a href={`${REPO}/blob/main/docs/finding-confidently-wrong.md`}>Source</a></p>
       </div>
@@ -66,17 +66,17 @@ if (base.sigma_hindsight.healthy !== base.detectors.healthy) {
     <section>
       <h2>If your monitoring trusts the robot's own uncertainty</h2>
       <div class="body">
-        <p>On the recording behind that example: the check most teams write first, tuned in hindsight, against mine, at the same rate of flags on healthy poses ({base.detectors.healthy}%).</p>
+        <p>On the recording behind that example: the check most teams write first, tuned in hindsight, against mine, at the same rate of alarms while the robot was not lost ({base.detectors.healthy}%).</p>
         <details><summary>The evidence</summary>
         <table>
-          <thead><tr><th scope="col">Check</th><th scope="col">Healthy flagged</th><th scope="col">Lost flagged</th></tr></thead>
+          <thead><tr><th scope="col">Check</th><th scope="col">Flagged while fine</th><th scope="col">Flagged while lost</th></tr></thead>
           <tbody>
-            <tr><td>Threshold on the localiser's own uncertainty, picked knowing the answer</td><td class="h">{base.sigma_hindsight.healthy}%</td><td class="n">{base.sigma_hindsight.lost}%</td></tr>
-            <tr><td>Four detectors (covariance spikes, transform jumps, disagreement with the wheels, gaps in the sensor stream), frozen before the run</td><td class="h">{base.detectors.healthy}%</td><td class="n">{base.detectors.lost}%</td></tr>
+            <tr><td>A threshold on how sure the robot says it is of its position, picked knowing the answer</td><td class="h">{base.sigma_hindsight.healthy}%</td><td class="n">{base.sigma_hindsight.lost}%</td></tr>
+            <tr><td>Four detectors (sudden jumps in that uncertainty, jumps in position, disagreement with the wheels, gaps in the sensor stream), frozen before the run</td><td class="h">{base.detectors.healthy}%</td><td class="n">{base.detectors.lost}%</td></tr>
           </tbody>
         </table>
         <p class="note">
-          One recording, one robot, graded against the dataset's ceiling AprilTags. The {base.detectors.lost}% is an upper bound ({base.detectors_events_starting_in_lost_window}% counting only detections that start in the lost window), and {base.lost_by_neither_hindsight}% of lost poses were flagged by neither check. <a href={`${REPO}/blob/main/docs/finding-confidently-wrong.md`}>Source</a>
+          One recording, one robot, graded against markers on the ceiling (the dataset's AprilTags). The {base.detectors.lost}% is an upper bound ({base.detectors_events_starting_in_lost_window}% counting only detections that start in the lost window), and neither check flagged {base.lost_by_neither_hindsight}% of the positions it reported while lost. <a href={`${REPO}/blob/main/docs/finding-confidently-wrong.md`}>Source</a>
         </p>
         </details>
       </div>
@@ -85,7 +85,7 @@ if (base.sigma_hindsight.healthy !== base.detectors.healthy) {
     <section>
       <h2>If your alarms were tuned on one robot</h2>
       <div class="body">
-        <p>Set on a simulated TurtleBot3, a covariance threshold sat inside the healthy noise of a real Tiago and fired five times on a recording with nothing wrong.</p>
+        <p>An alarm on the robot's own uncertainty, set on a simulated TurtleBot3, fired five times on a real Tiago robot in a recording where nothing was wrong.</p>
         <details><summary>The evidence</summary><p>A threshold belongs to the machine it was measured on, so I set yours on your recordings and measure how often each fires when nothing is wrong. <a href={`${REPO}/blob/main/docs/transferability.md`}>Source</a></p></details>
       </div>
     </section>
@@ -93,7 +93,7 @@ if (base.sigma_hindsight.healthy !== base.detectors.healthy) {
     <section>
       <h2>If you run Nav2, check this in one minute</h2>
       <div class="body">
-        <p>Stock Nav2 ships AMCL with both recovery terms at 0.0, which leaves kidnap recovery off unless you change them.</p>
+        <p>Stock Nav2 ships AMCL, the part that works out where the robot is, with both recovery terms at 0.0: a robot that gets moved or lost has no way to notice, unless you change them.</p>
         <details><summary>The evidence</summary><p>If both print 0.0, a displaced robot has no mechanism to conclude it is lost.</p>
         <pre><code>ros2 param get /amcl recovery_alpha_slow
 ros2 param get /amcl recovery_alpha_fast</code></pre>
@@ -111,11 +111,11 @@ ros2 param get /amcl recovery_alpha_fast</code></pre>
           <li><img src={`${files}/how/account-thumb.jpg`} alt="" width="45" height="64" /><span>a written account</span></li>
         </ol>
         <ol class="steps">
-          <li><strong>You send one recording</strong> from an incident: rosbag2 or ROS 1 .bag, and a line on what the robot did.</li>
-          <li><strong>I read it offline.</strong> Analysis runs on your infrastructure or under NDA on mine; nothing is retained after handover. The tool reads the bag from disk and calls nothing outside it.</li>
+          <li><strong>You send one recording</strong> from an incident (the log file the robot writes, a ROS 1 or ROS 2 bag) and a line on what the robot did.</li>
+          <li><strong>I read it offline.</strong> Analysis runs on your infrastructure or under NDA on mine; nothing is retained after handover. My tool reads the recording from disk and calls nothing outside it.</li>
           <li><strong>You get a written account</strong>: what happened, what the evidence supports, and what it does not.</li>
         </ol>
-        <a class="account" href={ACCOUNT} rel="noopener"><img src={`${files}/how/account-page.jpg`} width="1588" height="1538" alt="First page of the written account of the public example: a lost localiser that reports eight centimetres of confidence." /></a>
+        <a class="account" href={ACCOUNT} rel="noopener"><img src={`${files}/how/account-page.jpg`} width="1588" height="1538" alt="First page of the written account of the public example: a lost robot that reports itself sure to eight centimetres." /></a>
         <p class="note">The written account of the public example above, first page. <a href={ACCOUNT}>Read it in full</a></p>
         <p><strong>Before each software release</strong>, the same checks run on your recordings of the old version and the new one, and you get in writing what changed.</p>
         <p class="ask">

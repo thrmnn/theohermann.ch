@@ -25,11 +25,11 @@ const sigMed = median(lost.map((p) => p[2]));
 
 const ticks: [number, string][] = [[0.01, '1 cm'], [0.1, '10 cm'], [1, '1 m'], [10, '10 m'], [100, '100 m']];
 const xEnd = x(zones_s.lost_end_s);
-const label = `Position error against the ceiling AprilTag truth, and the localiser's reported uncertainty, over ${tMax} seconds. On floor 2 both stay under half a metre. After an elevator ride to a floor its map does not contain and back, the error sits near ${errMed.toFixed(1)} metres while the reported uncertainty stays near ${Math.round(sigMed * 100)} centimetres.`;
+const label = `Position error against markers on the ceiling, and the robot's reported uncertainty, over ${tMax} seconds. On floor 2 both stay under half a metre. After an elevator ride to a floor its map does not contain and back, the error sits near ${errMed.toFixed(1)} metres while the reported uncertainty stays near ${Math.round(sigMed * 100)} centimetres.`;
 ---
 
 <figure class="chart">
-  <p class="reading"><strong>Black:</strong> how far its reported position was from the ceiling markers. <strong>Grey:</strong> how sure its localiser said it was. After the elevator, black jumps to metres; grey stays at centimetres.</p>
+  <p class="reading"><strong>Black:</strong> how far its reported position was from the ceiling markers. <strong>Grey:</strong> how sure the robot said it was. After the elevator, black jumps to metres; grey stays at centimetres.</p>
   <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={label}>
     <rect class="gap" x={x(zones_s.healthy_end_s)} y={T} width={x(zones_s.lost_start_s) - x(zones_s.healthy_end_s)} height={H - T - B} />
     {['elevator to', 'a floor not', 'in its map:', 'no markers'].map((line, i) => (
@@ -51,7 +51,7 @@ const label = `Position error against the ceiling AprilTag truth, and the locali
     <text class="lab" x={xEnd + 10} y={y(sigMed) - 4}>what it reported,</text>
     <text class="lab val" x={xEnd + 10} y={y(sigMed) + 12}>median {Math.round(sigMed * 100)} cm</text>
   </svg>
-  <figcaption>One dot per pose; distances on a log scale. The ceiling markers are the dataset's AprilTags, independent of the localiser.</figcaption>
+  <figcaption>One dot per position estimate; distances on a log scale. The ceiling markers are the dataset's AprilTags, independent of the robot's own estimate.</figcaption>
 </figure>
 
 <style>
