@@ -42,6 +42,10 @@ if (base.sigma_hindsight.healthy !== base.detectors.healthy) {
       <p class="who">
         <strong>Théo Hermann</strong>, independent practitioner. MSc Robotics, EPFL. Perception and autonomy work at EPFL VITA Lab, IRI Barcelona and Roboat, 2022 to 2024.
       </p>
+      <div class="hero-plan">
+        <p class="figure-lead">One example, on a public recording: the robot was in one corridor, and reported, sure to a few centimetres, that it was in another.</p>
+        <StataPlan />
+      </div>
       <h1>When an autonomous robot fails in ways your logs don't explain, I find the real cause and prove it, independently.</h1>
       <div class="hero-side">
         <p class="lede">
@@ -53,8 +57,6 @@ if (base.sigma_hindsight.healthy !== base.detectors.healthy) {
         </p>
       </div>
       <div class="hero-figure">
-        <p class="figure-lead">One example, on a public recording: the robot was in one corridor, and reported, sure to a few centimetres, that it was in another.</p>
-        <StataPlan />
         <p class="cause">The cause: after about {offMapMinutes} minutes on a floor its map did not contain, it relocalised to the wrong corridor and stayed there.</p>
         <StataChart />
         <p class="note">A PR2 in MIT's Stata Center, from a public dataset, replayed and graded by me. <a href={`${REPO}/blob/main/docs/finding-confidently-wrong.md`}>Source</a></p>
@@ -142,6 +144,7 @@ ros2 param get /amcl recovery_alpha_fast</code></pre>
     border-radius: 0; font-weight: 700; text-decoration: none;
   }
   .btn:hover { background: var(--bg-primary); color: var(--text-primary); }
+  .hero-plan { margin-top: 20px; }
   .hero-figure { margin-top: 40px; }
   .figure-lead { font-weight: 700; font-size: 18px; line-height: 1.35; margin-bottom: 12px; }
   .cause { margin: 8px 0 20px; }
@@ -184,9 +187,10 @@ ros2 param get /amcl recovery_alpha_fast</code></pre>
     .page { padding-top: 64px; }
     .hero { display: grid; grid-template-columns: 1fr 22rem; column-gap: 64px; align-items: end; }
     .who { grid-column: 1 / -1; }
-    h1 { grid-column: 1; grid-row: 2; font-size: 44px; margin: 28px 0 0; }
-    .hero-side { grid-column: 2; grid-row: 2; }
-    .hero-figure { grid-column: 1 / -1; grid-row: 3; margin-top: 48px; max-width: 44rem; }
+    .hero-plan { grid-column: 1 / -1; grid-row: 2; margin-top: 28px; max-width: 44rem; }
+    h1 { grid-column: 1; grid-row: 3; font-size: 44px; margin: 28px 0 0; }
+    .hero-side { grid-column: 2; grid-row: 3; }
+    .hero-figure { grid-column: 1 / -1; grid-row: 4; margin-top: 48px; max-width: 44rem; }
     section { display: grid; grid-template-columns: 18rem 1fr; column-gap: 64px; margin-top: 64px; padding-top: 40px; }
     section h2 { margin-bottom: 0; }
     .body { max-width: 40rem; }
