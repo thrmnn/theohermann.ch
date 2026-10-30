@@ -16,6 +16,8 @@ import { join } from 'node:path';
 // Everything else renders from public/data/*.json, written by
 // scripts/sample-stata-replay.py from the demo's results/stata/.
 const REPO = 'https://github.com/thrmnn/ros2-localization-triage';
+const files = import.meta.env.BASE_URL.replace(/\/$/, '');
+const ACCOUNT = `${REPO}/blob/main/docs/finding-confidently-wrong.md`;
 const REGULATION = 'https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32023R1230';
 const mailto = `mailto:${author.email}?subject=${encodeURIComponent('One incident')}`;
 
@@ -96,11 +98,18 @@ ros2 param get /amcl recovery_alpha_fast</code></pre>
     <section id="contact">
       <h2>How it works</h2>
       <div class="body">
+        <ol class="strip" aria-hidden="true">
+          <li><svg viewBox="0 0 64 64"><path class="ln" d="M14 6h24l12 12v40H14z M38 6v12h12"/><text x="32" y="44" text-anchor="middle" class="mono">.bag</text></svg><span>one recording</span></li>
+          <li><svg viewBox="0 0 64 64"><path class="ln" d="M8 14h36v26H8z M2 46h48l-3 5H5z"/><path class="ln" d="M19 19h10l4 4v12H19z"/><path class="ln dash" d="M44 27h9"/><path class="ln" d="M53 23l7 8M60 23l-7 8"/></svg><span>read offline</span></li>
+          <li><img src={`${files}/how/account-thumb.jpg`} alt="" width="45" height="64" /><span>a written account</span></li>
+        </ol>
         <ol class="steps">
           <li><strong>You send one recording</strong> from an incident: rosbag2 or ROS 1 .bag, and a line on what the robot did.</li>
           <li><strong>I read it offline.</strong> Analysis runs on your infrastructure or under NDA on mine; nothing is retained after handover. The tool reads the bag from disk and calls nothing outside it.</li>
           <li><strong>You get a written account</strong>: what happened, what the evidence supports, and what it does not.</li>
         </ol>
+        <a class="account" href={ACCOUNT} rel="noopener"><img src={`${files}/how/account-page.jpg`} width="1588" height="1538" alt="First page of the written account of the public example: a lost localiser that reports eight centimetres of confidence." /></a>
+        <p class="note">The written account of the public example above, first page. <a href={ACCOUNT}>Read it in full</a></p>
         <p><strong>Before each software release</strong>, the same checks run on your recordings of the old version and the new one, and you get in writing what changed.</p>
         <p class="ask">
           <a class="btn" href={author.cal} rel="noopener">Book a 30-minute call</a>
@@ -154,6 +163,16 @@ ros2 param get /amcl recovery_alpha_fast</code></pre>
   .steps li { counter-increment: step; position: relative; padding-left: 36px; }
   .steps li + li { margin-top: 12px; }
   .steps li::before { content: counter(step); position: absolute; left: 0; top: 2px; width: 24px; height: 24px; border: 1px solid var(--text-primary); font: 700 13px/22px 'JetBrains Mono', monospace; text-align: center; }
+  .strip { list-style: none; padding: 0; margin: 4px 0 20px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .strip li { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; font-size: 15px; font-weight: 700; line-height: 1.25; position: relative; }
+  .strip li + li::before { content: '→'; position: absolute; left: -10px; top: 22px; color: var(--text-secondary); font-weight: 400; }
+  .strip svg, .strip img { width: 64px; height: 64px; display: block; }
+  .strip img { width: auto; border: 1px solid var(--border); background: #fff; }
+  .strip .ln { fill: none; stroke: var(--text-primary); stroke-width: 1.6; stroke-linejoin: round; stroke-linecap: round; }
+  .strip .dash { stroke-dasharray: 2 3; }
+  .strip .mono { font: 600 12px 'JetBrains Mono', monospace; fill: var(--text-primary); }
+  .account { display: block; margin-top: 16px; text-decoration: none; }
+  .account img { width: 100%; height: auto; display: block; border: 1px solid var(--border); }
   #contact .ask { margin-top: 24px; }
   .mail { font-size: 16px; }
   .foot { padding-top: 48px; padding-bottom: 40px; font-size: 13px; color: var(--text-secondary); }
