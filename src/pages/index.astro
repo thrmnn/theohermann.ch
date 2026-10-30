@@ -64,10 +64,10 @@ if (base.sigma_hindsight.healthy !== base.detectors.healthy) {
     </header>
 
     <section>
-      <h2>If your monitoring trusts the robot's own uncertainty</h2>
+      <h2 id="ex-monitoring">If your monitoring trusts the robot's own uncertainty</h2>
       <div class="body">
         <p>On the recording behind that example: the check most teams write first, tuned in hindsight, against mine, at the same rate of alarms while the robot was not lost ({base.detectors.healthy}%).</p>
-        <details><summary>The evidence</summary>
+        <details><summary aria-describedby="ex-monitoring">The evidence</summary>
         <table>
           <thead><tr><th scope="col">Check</th><th scope="col">Flagged while fine</th><th scope="col">Flagged while lost</th></tr></thead>
           <tbody>
@@ -83,18 +83,18 @@ if (base.sigma_hindsight.healthy !== base.detectors.healthy) {
     </section>
 
     <section>
-      <h2>If your alarms were tuned on one robot</h2>
+      <h2 id="ex-alarms">If your alarms were tuned on one robot</h2>
       <div class="body">
         <p>An alarm on the robot's own uncertainty, set on a simulated TurtleBot3, fired five times on a real Tiago robot in a recording where nothing was wrong.</p>
-        <details><summary>The evidence</summary><p>A threshold belongs to the machine it was measured on, so I set yours on your recordings and measure how often each fires when nothing is wrong. <a href={`${REPO}/blob/main/docs/transferability.md`}>Source</a></p></details>
+        <details><summary aria-describedby="ex-alarms">The evidence</summary><p>A threshold belongs to the machine it was measured on, so I set yours on your recordings and measure how often each fires when nothing is wrong. <a href={`${REPO}/blob/main/docs/transferability.md`}>Source</a></p></details>
       </div>
     </section>
 
     <section>
-      <h2>If you run Nav2, check this in one minute</h2>
+      <h2 id="ex-nav2">If you run Nav2, check this in one minute</h2>
       <div class="body">
         <p>Stock Nav2 ships AMCL, the part that works out where the robot is, with both recovery terms at 0.0: a robot that gets moved or lost has no way to notice, unless you change them.</p>
-        <details><summary>The evidence</summary><p>If both print 0.0, a displaced robot has no mechanism to conclude it is lost.</p>
+        <details><summary aria-describedby="ex-nav2">The evidence</summary><p>If both print 0.0, a displaced robot has no mechanism to conclude it is lost.</p>
         <pre><code>ros2 param get /amcl recovery_alpha_slow
 ros2 param get /amcl recovery_alpha_fast</code></pre>
         <p class="note"><a href={`${REPO}/blob/main/docs/finding-amcl-recovery.md`}>Source</a> · <a href="https://github.com/ros-navigation/navigation2/blob/jazzy/nav2_bringup/params/nav2_params.yaml">Nav2 defaults</a></p>
