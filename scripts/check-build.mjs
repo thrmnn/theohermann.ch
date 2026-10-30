@@ -119,12 +119,14 @@ for (const [tell, re] of [['rounded utility class', /class="[^"]*\brounded/], ['
 //     Keyed on the contact section id, not on a section list or a literal count.
 //     Prose only: the labels inside the plan and the chart are read as part of
 //     the picture, and pictures are how the owner asked to cut reading (27 Oct).
+//     Words a reader sees without a tap: a folded <details> counts its summary,
+//     not its body (owner's pick L-4, 30 Oct, folds each example's evidence).
 {
   const cut = home.indexOf('id="contact"');
   must('word_budget', cut > 0, 'contact section not found in rendered homepage');
   if (cut > 0) {
     const above = home.slice(home.indexOf('<body'), cut);
-    const text = above.replace(/<script[\s\S]*?<\/script>/g, ' ').replace(/<svg[\s\S]*?<\/svg>/g, ' ').replace(/<[^>]+>/g, ' ').replace(/&[a-z#0-9]+;/g, ' ');
+    const text = above.replace(/<script[\s\S]*?<\/script>/g, ' ').replace(/<svg[\s\S]*?<\/svg>/g, ' ').replace(/(<\/summary>)[\s\S]*?(<\/details>)/g, '$1$2').replace(/<[^>]+>/g, ' ').replace(/&[a-z#0-9]+;/g, ' ');
     const words = text.trim().split(/\s+/).filter(Boolean).length;
     must('word_budget', words <= WORD_BUDGET, `${words} words above the contact block (budget ${WORD_BUDGET})`);
     console.log(`  words above the contact block: ${words} (budget ${WORD_BUDGET})`);
