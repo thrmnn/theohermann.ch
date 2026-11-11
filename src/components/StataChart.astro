@@ -24,7 +24,7 @@ const errMed = median(lost.map((p) => p[1]));
 const sigMed = median(lost.map((p) => p[2]));
 
 const ticks: [number, string][] = [[0.01, '1 cm'], [0.1, '10 cm'], [1, '1 m'], [10, '10 m'], [100, '100 m']];
-const plan = JSON.parse(readFileSync(join(process.cwd(), 'public/data/stata-plan.json'), 'utf8')) as { t_start_s: number; t_end_s: number; sigma_cm: [number, number] };
+const plan = JSON.parse(readFileSync(join(process.cwd(), 'public/data/stata-plan.json'), 'utf8')) as { t_start_s: number; t_end_s: number; error_end_m: number; sigma_cm: [number, number] };
 const lostS = Math.round(zones_s.lost_end_s - zones_s.lost_start_s);
 const planS = Math.round(plan.t_end_s - plan.t_start_s);
 const xEnd = x(zones_s.lost_end_s);
@@ -54,7 +54,7 @@ const label = `Position error against markers on the ceiling, and the robot's re
     <text class="lab" x={xEnd + 10} y={y(sigMed) - 4}>what it reported,</text>
     <text class="lab val" x={xEnd + 10} y={y(sigMed) + 12}>median {Math.round(sigMed * 100)} cm</text>
   </svg>
-  <figcaption>Median over the {lostS} seconds it was lost. The plan above shows the last {planS} seconds, sure to {plan.sigma_cm[0]} to {plan.sigma_cm[1]} cm. One dot per position estimate; distances on a log scale. The ceiling markers are the dataset's AprilTags, independent of the robot's own estimate.</figcaption>
+  <figcaption>Median over the {lostS} seconds it was lost. The plan above shows the last {planS} seconds: {plan.error_end_m} m off at the end, while sure to {plan.sigma_cm[0]} to {plan.sigma_cm[1]} cm. One dot per position estimate; distances on a log scale. The ceiling markers are the dataset's AprilTags, independent of the robot's own estimate.</figcaption>
 </figure>
 
 <style>
