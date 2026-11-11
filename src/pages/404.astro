@@ -1,14 +1,17 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+const base = import.meta.env.BASE_URL;
 ---
 
 <BaseLayout title="Not found">
-  <section class="py-[var(--space-section)]">
-    <div class="mx-auto max-w-[var(--max-w-content)] px-6 text-center">
-      <h1 class="hero-name">Page not found.</h1>
-      <p class="mt-4">
-        <a href="/" class="text-[var(--color-link)] hover:text-[var(--color-link-hover)] underline-offset-4 underline decoration-1">Back to the homepage</a>
-      </p>
-    </div>
-  </section>
+  <main class="nf">
+    <h1>This page is not here.</h1>
+    <p><a href={base}>Go to theohermann.ch</a></p>
+  </main>
 </BaseLayout>
+
+<style>
+  .nf { max-width: 38rem; margin: 0 auto; padding: 64px 20px; color: var(--text-primary); font-size: 18px; line-height: 1.55; }
+  h1 { font-size: clamp(27px, 5.6vw, 40px); line-height: 1.15; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 16px; }
+  a { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+</style>
