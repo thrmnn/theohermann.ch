@@ -36,7 +36,7 @@ const lostS = Math.round(meta.zones_s.lost_end_s - meta.zones_s.lost_start_s);
         <StataPlan />
       </div>
       <div class="hero-side">
-        <p class="note">A PR2 robot in MIT's Stata Center, from a public recording, after it was carried to a floor missing from its map. Medians over the {lostS} seconds it was lost, checked against markers on the ceiling.</p>
+        <p class="note">A PR2 robot in MIT's Stata Center, from a public recording, after an elevator trip to a floor missing from its map. Medians over the {lostS} seconds it was lost, checked against markers on the ceiling.</p>
         <div class="offer">
           <p><strong>When a robot fails and the logs don't say why, I show what happened, when, and how far off, with the evidence.</strong></p>
           <p>Send me one recording. You get a written account: what happened, what the evidence supports, and what it does not.</p>
@@ -51,7 +51,7 @@ const lostS = Math.round(meta.zones_s.lost_end_s - meta.zones_s.lost_start_s);
 
     <section>
       <h2>If you run Nav2, check this in one minute</h2>
-      <p>Stock Nav2 ships AMCL, the part that works out where the robot is, with both recovery terms at 0.0: a robot that gets moved or lost has no built-in way to recover its position, unless you change them.</p>
+      <p>Stock Nav2 ships AMCL, the part that works out where the robot is, with both recovery terms at 0.0: a robot that gets moved or lost has no automatic way to recover its position, unless you change them.</p>
       <pre><code>ros2 param get /amcl recovery_alpha_slow
 ros2 param get /amcl recovery_alpha_fast</code></pre>
       <p class="note"><a href={`${REPO}/blob/main/docs/finding-amcl-recovery.md`}>Source</a> · <a href="https://github.com/ros-navigation/navigation2/blob/jazzy/nav2_bringup/params/nav2_params.yaml">Nav2 defaults</a></p>
@@ -89,11 +89,12 @@ ros2 param get /amcl recovery_alpha_fast</code></pre>
   .hero-side > .note { font-size: 15px; }
   pre { padding: 12px 14px; border: 1px solid var(--border); overflow-x: auto; font: 14px/1.5 'JetBrains Mono', monospace; }
   .account { margin-top: 28px; font-size: 16px; }
-  .foot { padding-top: 40px; padding-bottom: 40px; font-size: 13px; color: var(--text-secondary); }
+  .foot { padding-top: 40px; padding-bottom: 40px; font-size: 13px; color: var(--text-secondary); text-align: left; }
 
   @media (min-width: 960px) {
     .page, .foot { max-width: 68rem; padding: 0 48px; }
     .page { padding-top: 40px; }
+    .foot { padding-top: 40px; padding-bottom: 40px; }
     .hero { display: grid; grid-template-columns: 1fr 26rem; column-gap: 64px; align-items: start; }
     .who { grid-column: 1 / -1; }
     h1 { grid-column: 1; grid-row: 2; font-size: 44px; margin: 20px 0 0; }
