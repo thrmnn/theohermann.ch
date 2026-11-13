@@ -21,7 +21,6 @@ const line = (pts: [number, number][]) => 'M' + pts.map(([x, y]) => `${X(x)} ${Y
 const walls = plan.walls_dm.map(([cx, cy]) => `M${cx} ${cy}h0`).join('');
 const [wx, wy] = plan.was[plan.was.length - 1];
 const [sx, sy] = plan.said[plan.said.length - 1];
-const e = plan.error_end_m;
 
 // Phone: the same map cropped to the two paths, labels in a column beside it, so the
 // plan fits above the headline with the button still on the first screen (owner, 30 Oct).
@@ -39,7 +38,7 @@ const swalls = [...new Set(plan.walls_dm
 const [wX, wY, sX, sY] = [sx_(wx), sy_(wy), sx_(sx), sy_(sy)];
 ---
 
-<svg class="plan" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`Floor plan: the robot's real path and the path it reported, ${e} metres apart`}>
+<svg class="plan" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Floor plan: where the robot was, and where it said it was">
   <path class="walls" d={walls} />
   <path class="gap" d={`M${X(wx)} ${Y(wy)}L${X(sx)} ${Y(sy)}`} />
   <path class="was" d={line(plan.was)} />
@@ -49,7 +48,7 @@ const [wX, wY, sX, sY] = [sx_(wx), sy_(wy), sx_(sx), sy_(sy)];
   <text class="lab" x={(Number(X(wx)) + 12).toFixed(1)} y={(Number(Y(wy)) + 4).toFixed(1)}>where it was</text>
   <text class="lab said-lab" x={(Number(X(sx)) + 12).toFixed(1)} y={(Number(Y(sy)) + 4).toFixed(1)}>where it said it was</text>
 </svg>
-<svg class="plan plan-sm" viewBox={`0 0 ${VW} ${SH}`} role="img" aria-label={`Floor plan: the robot's real path and the path it reported, ${e} metres apart`}>
+<svg class="plan plan-sm" viewBox={`0 0 ${VW} ${SH}`} role="img" aria-label="Floor plan: where the robot was, and where it said it was">
   <path class="walls" d={swalls} />
   <path class="gap" d={`M${wX.toFixed(1)} ${wY.toFixed(1)}L${sX.toFixed(1)} ${sY.toFixed(1)}`} />
   <path class="was" d={sline(plan.was)} />
