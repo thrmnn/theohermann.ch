@@ -1,7 +1,7 @@
 export const siteConfig = {
   title: 'Théo Hermann',
   description:
-    "When an autonomous robot fails in ways your logs don't explain, I find the real cause and prove it, independently.",
+    "When a robot fails and the logs don't say why, I show what happened, when, and how far off, with the evidence.",
   url: 'https://theohermann.ch',
   author: 'Théo Hermann',
   ogImage: '/og-default.png',
