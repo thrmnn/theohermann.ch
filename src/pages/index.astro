@@ -93,7 +93,7 @@ if (base.sigma_hindsight.healthy !== base.detectors.healthy) {
     <section>
       <h2 id="ex-nav2">If you run Nav2, check this in one minute</h2>
       <div class="body">
-        <p>Stock Nav2 ships AMCL, the part that works out where the robot is, with both recovery terms at 0.0: a robot that gets moved or lost has no built-in way to recover its position, unless you change them.</p>
+        <p>Stock Nav2 ships AMCL, the part that works out where the robot is, with both recovery terms at 0.0: a robot that gets moved or lost has no automatic way to recover its position, unless you change them.</p>
         <details><summary aria-describedby="ex-nav2">The evidence</summary><p>If both print 0.0, a displaced robot has no mechanism to recover its position on its own.</p>
         <pre><code>ros2 param get /amcl recovery_alpha_slow
 ros2 param get /amcl recovery_alpha_fast</code></pre>
