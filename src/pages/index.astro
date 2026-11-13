@@ -1,6 +1,5 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import StataPlan from '../components/StataPlan.astro';
 import { author } from '../data/author';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -12,7 +11,7 @@ import { join } from 'node:path';
 //   carried to a floor missing from its map; the ceiling markers (AprilTags)                  docs/finding-confidently-wrong.md
 // The two headline numbers and the seconds lost render from public/data/stata-replay.meta.json
 // (lost_window medians, zones_s), written by scripts/sample-stata-replay.py from the demo's
-// results/stata/. The floor plan renders from public/data/stata-plan.json.
+// results/stata/. The two bars are drawn from the same two fields.
 const REPO = 'https://github.com/thrmnn/ros2-localization-triage';
 const ACCOUNT = `${REPO}/blob/main/docs/finding-confidently-wrong.md`;
 const mailto = `mailto:${author.email}?subject=${encodeURIComponent('One incident')}`;
@@ -24,6 +23,10 @@ const meta = readJson('stata-replay.meta.json') as {
 };
 const sigma = Math.round(meta.lost_window.amcl_reported_sigma_median_m * 100);
 const error = Math.round(meta.lost_window.position_error_median_m);
+const sigmaM = meta.lost_window.amcl_reported_sigma_median_m;
+const errorM = meta.lost_window.position_error_median_m;
+const BAR_MAX = 280;
+const barW = (m: number) => ((m / errorM) * BAR_MAX).toFixed(2);
 const lostS = Math.round(meta.zones_s.lost_end_s - meta.zones_s.lost_start_s);
 ---
 
@@ -33,7 +36,14 @@ const lostS = Math.round(meta.zones_s.lost_end_s - meta.zones_s.lost_start_s);
       <p class="who">Théo Hermann · independent robotics practitioner · MSc Robotics, EPFL</p>
       <h1>A robot reported its position to within {sigma} cm. It was {error} m away.</h1>
       <div class="hero-plan">
-        <StataPlan />
+        <svg class="bars" viewBox="0 0 400 130" role="img" aria-label={`Two bars on one scale in metres: what it reported, ${sigma} cm; how far off it was, ${error} m`}>
+          <text class="lab" x="0" y="18">what it reported</text>
+          <rect class="bar" x="0" y="28" width={barW(sigmaM)} height="22" />
+          <text class="val" x={Number(barW(sigmaM)) + 10} y="46">{sigma} cm</text>
+          <text class="lab" x="0" y="86">how far off it was</text>
+          <rect class="bar" x="0" y="96" width={barW(errorM)} height="22" />
+          <text class="val" x={BAR_MAX + 10} y="114">{error} m</text>
+        </svg>
       </div>
       <div class="hero-side">
         <p class="note">A PR2 robot in MIT's Stata Center, from a public recording, after it was carried to a floor missing from its map. Medians over the {lostS} seconds it was lost, checked against markers on the ceiling.</p>
@@ -71,6 +81,10 @@ ros2 param get /amcl recovery_alpha_fast</code></pre>
   .who { font-size: 15px; color: var(--text-secondary); }
   h1 { font-size: clamp(27px, 5.6vw, 40px); line-height: 1.15; font-weight: 700; letter-spacing: -0.02em; margin: 12px 0 4px; }
   .hero-plan { margin-top: 8px; }
+  .bars { width: 100%; max-width: 26rem; height: auto; display: block; }
+  .bars .bar { fill: var(--accent); }
+  .bars .lab { font: 600 15px 'Space Grotesk', sans-serif; fill: var(--text-secondary); }
+  .bars .val { font: 700 22px 'Space Grotesk', sans-serif; fill: var(--text-primary); }
   .offer { margin-top: 16px; }
   .offer > * + * { margin-top: 10px; }
   .ask { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; margin: 16px 0 0; }
