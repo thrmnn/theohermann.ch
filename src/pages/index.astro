@@ -1,219 +1,104 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import StataChart from '../components/StataChart.astro';
 import StataPlan from '../components/StataPlan.astro';
 import { author } from '../data/author';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-// Numbers that are static README-verbatim text (not in a sidecar), with their
-// source in the demo at github.com/thrmnn/ros2-localization-triage:
-//   TurtleBot3 to Tiago, "fired five times"         README.md, docs/transferability.md
-//   recovery_alpha 0.0, the two ros2 param lines    docs/finding-amcl-recovery.md
-//   ROS 1 or 2 bag file; reads from disk, calls nothing outside it    README.md
-//   wrong corridor                                                      docs/finding-confidently-wrong.md
-//   from 2027: Machinery Regulation (EU) 2023/1230, tracing logs from 20 Jan 2027 (EUR-Lex, linked)
-// Everything else renders from public/data/*.json, written by
-// scripts/sample-stata-replay.py from the demo's results/stata/.
+// Static text (not in a sidecar), with its source in the demo at
+// github.com/thrmnn/ros2-localization-triage:
+//   recovery_alpha 0.0, the two ros2 param lines, "no built-in way to recover its position"   docs/finding-amcl-recovery.md
+//   ROS 1 and ROS 2, Nav2 and AMCL; analysis runs on your side or under NDA                  README.md
+//   carried to a floor missing from its map; the ceiling markers (AprilTags)                  docs/finding-confidently-wrong.md
+// The two headline numbers and the seconds lost render from public/data/stata-replay.meta.json
+// (lost_window medians, zones_s), written by scripts/sample-stata-replay.py from the demo's
+// results/stata/. The floor plan renders from public/data/stata-plan.json.
 const REPO = 'https://github.com/thrmnn/ros2-localization-triage';
-const files = import.meta.env.BASE_URL.replace(/\/$/, '');
 const ACCOUNT = `${REPO}/blob/main/docs/finding-confidently-wrong.md`;
-const REGULATION = 'https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32023R1230';
 const mailto = `mailto:${author.email}?subject=${encodeURIComponent('One incident')}`;
 
 const readJson = (f: string) => JSON.parse(readFileSync(join(process.cwd(), 'public/data', f), 'utf8'));
-// From the last ceiling-marker pose on floor 2 to the first one after the robot came back.
-const { zones_s } = readJson('stata-replay.meta.json') as { zones_s: { healthy_end_s: number; lost_start_s: number } };
-const offMapMinutes = ['one', 'two', 'three', 'four', 'five'][Math.round((zones_s.lost_start_s - zones_s.healthy_end_s) / 60) - 1];
-const base = readJson('stata-baseline.json') as {
-  sigma_hindsight: { lost: number; healthy: number };
-  detectors: { lost: number; healthy: number };
-  detectors_events_starting_in_lost_window: number;
-  lost_by_neither_hindsight: number;
+const meta = readJson('stata-replay.meta.json') as {
+  lost_window: { amcl_reported_sigma_median_m: number; position_error_median_m: number };
+  zones_s: { lost_start_s: number; lost_end_s: number };
 };
-if (base.sigma_hindsight.healthy !== base.detectors.healthy) {
-  throw new Error('stata-baseline.json: the comparison is only fair at an equal healthy flag rate');
-}
+const sigma = Math.round(meta.lost_window.amcl_reported_sigma_median_m * 100);
+const error = Math.round(meta.lost_window.position_error_median_m);
+const lostS = Math.round(meta.zones_s.lost_end_s - meta.zones_s.lost_start_s);
 ---
 
 <BaseLayout ogType="profile">
   <main class="page">
     <header class="hero">
-      <p class="who">
-        <strong>Théo Hermann</strong>, independent practitioner. MSc Robotics, EPFL. Perception and autonomy work at EPFL VITA Lab, IRI Barcelona and Roboat, 2022 to 2024.
-      </p>
+      <p class="who">Théo Hermann · independent robotics practitioner · MSc Robotics, EPFL</p>
+      <h1>A robot reported its position to within {sigma} cm. It was {error} m away.</h1>
       <div class="hero-plan">
-        <p class="figure-lead">One example, on a public recording: the robot was in one corridor, and reported, sure to a few centimetres, that it was in another.</p>
         <StataPlan />
       </div>
-      <h1>When an autonomous robot fails in ways your logs don't explain, I find the real cause and prove it, independently.</h1>
       <div class="hero-side">
-        <p class="lede">
-          Your tools collect the data; I deliver the verdict and the evidence your team and, <a href={REGULATION}>from 2027</a>, your safety assessors will ask for.
-        </p>
-        <p class="ask">
+        <p class="note">A PR2 robot in MIT's Stata Center, from a public recording, after it was carried to a floor missing from its map. Medians over the {lostS} seconds it was lost, checked against markers on the ceiling.</p>
+        <div class="offer">
+          <p><strong>When a robot fails and the logs don't say why, I show what happened, when, and how far off, with the evidence.</strong></p>
+          <p>Send me one recording. You get a written account: what happened, what the evidence supports, and what it does not.</p>
+          <p>ROS 1 and ROS 2, Nav2 and AMCL. Analysis runs on your side or under NDA.</p>
+        </div>
+        <p class="ask" id="contact">
           <a class="btn" href={author.cal} rel="noopener">Book a 30-minute call</a>
           <a href={mailto}>or send me one incident</a>
         </p>
-      </div>
-      <div class="hero-figure">
-        <p class="cause">The cause: after about {offMapMinutes} minutes on a floor its map did not contain, it settled on the wrong corridor and stayed there.</p>
-        <StataChart />
-        <p class="note">A PR2 in MIT's Stata Center, from a public dataset, replayed and graded by me. <a href={`${REPO}/blob/main/docs/finding-confidently-wrong.md`}>Source</a></p>
       </div>
     </header>
 
     <section>
-      <h2 id="ex-monitoring">If your monitoring trusts the robot's own uncertainty</h2>
-      <div class="body">
-        <p>On the recording behind that example: the check most teams write first, tuned in hindsight, against mine, at the same rate of alarms while the robot was not lost ({base.detectors.healthy}%).</p>
-        <details><summary aria-describedby="ex-monitoring">The evidence</summary>
-        <table>
-          <thead><tr><th scope="col">Check</th><th scope="col">Flagged while fine</th><th scope="col">Flagged while lost</th></tr></thead>
-          <tbody>
-            <tr><td>A threshold on how sure the robot says it is of its position, picked knowing the answer</td><td class="h">{base.sigma_hindsight.healthy}%</td><td class="n">{base.sigma_hindsight.lost}%</td></tr>
-            <tr><td>Four detectors (sudden jumps in that uncertainty, jumps in position, disagreement with the wheels, gaps in the sensor stream), frozen before the run</td><td class="h">{base.detectors.healthy}%</td><td class="n">{base.detectors.lost}%</td></tr>
-          </tbody>
-        </table>
-        <p class="note">
-          One recording, one robot, graded against markers on the ceiling (the dataset's AprilTags). The {base.detectors.lost}% is an upper bound ({base.detectors_events_starting_in_lost_window}% counting only detections that start in the lost window), and neither check flagged {base.lost_by_neither_hindsight}% of the positions it reported while lost. <a href={`${REPO}/blob/main/docs/finding-confidently-wrong.md`}>Source</a>
-        </p>
-        </details>
-      </div>
-    </section>
-
-    <section>
-      <h2 id="ex-alarms">If your alarms were tuned on one robot</h2>
-      <div class="body">
-        <p>An alarm on the robot's own uncertainty, set on a simulated TurtleBot3, fired five times on a real Tiago robot in a recording where nothing was wrong.</p>
-        <details><summary aria-describedby="ex-alarms">The evidence</summary><p>A threshold belongs to the machine it was measured on, so I set yours on your recordings and measure how often each fires when nothing is wrong. <a href={`${REPO}/blob/main/docs/transferability.md`}>Source</a></p></details>
-      </div>
-    </section>
-
-    <section>
-      <h2 id="ex-nav2">If you run Nav2, check this in one minute</h2>
-      <div class="body">
-        <p>Stock Nav2 ships AMCL, the part that works out where the robot is, with both recovery terms at 0.0: a robot that gets moved or lost has no built-in way to recover its position, unless you change them.</p>
-        <details><summary aria-describedby="ex-nav2">The evidence</summary><p>If both print 0.0, a displaced robot has no mechanism to recover its position on its own.</p>
-        <pre><code>ros2 param get /amcl recovery_alpha_slow
+      <h2>If you run Nav2, check this in one minute</h2>
+      <p>Stock Nav2 ships AMCL, the part that works out where the robot is, with both recovery terms at 0.0: a robot that gets moved or lost has no built-in way to recover its position, unless you change them.</p>
+      <pre><code>ros2 param get /amcl recovery_alpha_slow
 ros2 param get /amcl recovery_alpha_fast</code></pre>
-        <p class="note"><a href={`${REPO}/blob/main/docs/finding-amcl-recovery.md`}>Source</a> · <a href="https://github.com/ros-navigation/navigation2/blob/jazzy/nav2_bringup/params/nav2_params.yaml">Nav2 defaults</a></p>
-        </details>
-      </div>
+      <p class="note"><a href={`${REPO}/blob/main/docs/finding-amcl-recovery.md`}>Source</a> · <a href="https://github.com/ros-navigation/navigation2/blob/jazzy/nav2_bringup/params/nav2_params.yaml">Nav2 defaults</a></p>
     </section>
 
-    <section>
-      <h2>Working with me</h2>
-      <div class="body">
-        <p>You send one recording and what went wrong. You get back a written verdict with its evidence, like the public account above.</p>
-        <p>Two ways to start: I investigate one incident, or I check each release before it ships.</p>
-        <p>I work on ROS 1 and ROS 2, Nav2 and AMCL, and mobile robots. Perception work at EPFL VITA, IRI and Roboat (an internship).</p>
-      </div>
-    </section>
-
-    <section id="contact">
-      <h2>How it works</h2>
-      <div class="body">
-        <ol class="strip" aria-hidden="true">
-          <li><svg viewBox="0 0 64 64"><path class="ln" d="M14 6h24l12 12v40H14z M38 6v12h12"/><text x="32" y="44" text-anchor="middle" class="mono">.bag</text></svg><span>one recording</span></li>
-          <li><svg viewBox="0 0 64 64"><path class="ln" d="M8 14h36v26H8z M2 46h48l-3 5H5z"/><path class="ln" d="M19 19h10l4 4v12H19z"/><path class="ln dash" d="M44 27h9"/><path class="ln" d="M53 23l7 8M60 23l-7 8"/></svg><span>read offline</span></li>
-          <li><img src={`${files}/how/account-thumb.jpg`} alt="" width="45" height="64" /><span>a written account</span></li>
-        </ol>
-        <ol class="steps">
-          <li><strong>You send one recording</strong> from an incident (the log file the robot writes, a ROS 1 or ROS 2 bag) and a line on what the robot did.</li>
-          <li><strong>I read it offline.</strong> Analysis runs on your infrastructure or under NDA on mine; nothing is retained after handover. My tool reads the recording from disk and calls nothing outside it.</li>
-          <li><strong>You get a written account</strong>: what happened, what the evidence supports, and what it does not.</li>
-        </ol>
-        <a class="account" href={ACCOUNT} rel="noopener"><img src={`${files}/how/account-page.jpg`} width="1588" height="1538" alt="First page of the written account of the public example: a lost robot that reports itself sure to eight centimetres." /></a>
-        <p class="note">The written account of the public example above, first page. <a href={ACCOUNT}>Read it in full</a></p>
-        <p><strong>Before each software release</strong>, the same checks run on your recordings of the old version and the new one, and you get in writing what changed.</p>
-        <p class="ask">
-          <a class="btn" href={author.cal} rel="noopener">Book a 30-minute call</a>
-          <a href={mailto}>or send me one incident</a>
-        </p>
-        <p class="mail"><a href={mailto}>{author.email}</a></p>
-      </div>
-    </section>
+    <p class="account"><a href={ACCOUNT} rel="noopener">The full written account of this example</a></p>
   </main>
 
   <footer class="foot">
-    <p>
-      Every number on this page recomputes from <a href={REPO}>github.com/thrmnn/ros2-localization-triage</a>. Recorded data: MIT Stata Center dataset (CC BY 3.0), Universidad de León clean-and-attack recordings (CC BY 4.0).
-    </p>
-    <p>Who I am, and my research on cities: <a href="https://theoalessandro.com">theoalessandro.com</a></p>
+    <p>Sources: <a href={REPO}>github.com/thrmnn/ros2-localization-triage</a>; MIT Stata Center dataset (CC BY 3.0). Who I am: <a href="https://theoalessandro.com">theoalessandro.com</a></p>
   </footer>
 </BaseLayout>
 
 <style>
   .page, .foot { max-width: 38rem; margin: 0 auto; padding: 0 20px; }
-  .page { padding-top: 40px; color: var(--text-primary); font-size: 18px; line-height: 1.55; }
+  .page { padding-top: 20px; color: var(--text-primary); font-size: 18px; line-height: 1.55; }
   .who { font-size: 15px; color: var(--text-secondary); }
-  .who strong { color: var(--text-primary); }
-  h1 { font-size: clamp(27px, 5.6vw, 40px); line-height: 1.15; font-weight: 700; letter-spacing: -0.02em; margin: 24px 0 16px; }
-  .lede { margin-bottom: 24px; }
-  .ask { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; margin: 0; }
+  h1 { font-size: clamp(27px, 5.6vw, 40px); line-height: 1.15; font-weight: 700; letter-spacing: -0.02em; margin: 12px 0 4px; }
+  .hero-plan { margin-top: 8px; }
+  .offer { margin-top: 16px; }
+  .offer > * + * { margin-top: 10px; }
+  .ask { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; margin: 16px 0 0; }
   .btn {
     display: inline-flex; align-items: center; min-height: 48px; padding: 0 22px;
     background: var(--text-primary); color: var(--bg-primary); border: 2px solid var(--text-primary);
     border-radius: 0; font-weight: 700; text-decoration: none;
   }
   .btn:hover { background: var(--bg-primary); color: var(--text-primary); }
-  .hero-plan { margin-top: 20px; }
-  .hero-figure { margin-top: 40px; }
-  .figure-lead { font-weight: 700; font-size: 18px; line-height: 1.35; margin-bottom: 12px; }
-  .cause { margin: 8px 0 20px; }
-  section { border-top: 1px solid var(--border); margin-top: 48px; padding-top: 32px; }
-  h2 { font-size: 20px; font-weight: 700; line-height: 1.3; margin-bottom: 12px; }
-  .body > * + *, details > * + * { margin-top: 12px; }
-  details { margin-top: 12px; }
-  summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; font-weight: 700; font-size: 16px; }
-  summary::before { content: '+'; display: inline-block; width: 1.2em; font-weight: 400; }
-  details[open] > summary::before { content: '\2212'; }
-  details[open] > summary { margin-bottom: 4px; }
   a { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
   .btn, .btn:hover { text-decoration: none; }
-  table { width: 100%; border-collapse: collapse; font-size: 16px; }
-  th { text-align: left; font-weight: 600; font-size: 14px; color: var(--text-secondary); padding: 8px 0; border-bottom: 1px solid var(--text-primary); }
-  th + th, td.n, td.h { text-align: right; white-space: nowrap; padding-left: 16px; }
-  td.h { font-size: 18px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
-  td { padding: 12px 0; border-bottom: 1px solid var(--border); vertical-align: top; }
-  td.n { font-size: 28px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+  section { border-top: 1px solid var(--border); margin-top: 40px; padding-top: 24px; }
+  section > * + * { margin-top: 12px; }
+  h2 { font-size: 20px; font-weight: 700; line-height: 1.3; }
   .note { font-size: 14px; color: var(--text-secondary); line-height: 1.5; }
-  .hero-figure .note { margin-top: 6px; }
+  .hero-side > .note { font-size: 15px; }
   pre { padding: 12px 14px; border: 1px solid var(--border); overflow-x: auto; font: 14px/1.5 'JetBrains Mono', monospace; }
-  .steps { list-style: none; counter-reset: step; padding: 0; }
-  .steps li { counter-increment: step; position: relative; padding-left: 36px; }
-  .steps li + li { margin-top: 12px; }
-  .steps li::before { content: counter(step); position: absolute; left: 0; top: 2px; width: 24px; height: 24px; border: 1px solid var(--text-primary); font: 700 13px/22px 'JetBrains Mono', monospace; text-align: center; }
-  .strip { list-style: none; padding: 0; margin: 4px 0 20px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-  .strip li { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; font-size: 15px; font-weight: 700; line-height: 1.25; position: relative; }
-  .strip li + li::before { content: '→'; position: absolute; left: -10px; top: 22px; color: var(--text-secondary); font-weight: 400; }
-  .strip svg, .strip img { width: 64px; height: 64px; display: block; }
-  .strip img { width: auto; border: 1px solid var(--border); background: #fff; }
-  .strip .ln { fill: none; stroke: var(--text-primary); stroke-width: 1.6; stroke-linejoin: round; stroke-linecap: round; }
-  .strip .dash { stroke-dasharray: 2 3; }
-  .strip .mono { font: 600 12px 'JetBrains Mono', monospace; fill: var(--text-primary); }
-  .account { display: block; margin-top: 16px; text-decoration: none; }
-  .account img { width: 100%; height: auto; display: block; border: 1px solid var(--border); }
-  #contact .ask { margin-top: 24px; }
-  .mail { font-size: 16px; }
-  .foot { padding-top: 48px; padding-bottom: 40px; font-size: 13px; color: var(--text-secondary); }
+  .account { margin-top: 28px; font-size: 16px; }
+  .foot { padding-top: 40px; padding-bottom: 40px; font-size: 13px; color: var(--text-secondary); }
 
-  /* Laptop and up: the type column stays readable, the figure and the section
-     labels use the width instead of leaving two empty margins. */
   @media (min-width: 960px) {
     .page, .foot { max-width: 68rem; padding: 0 48px; }
-    .page { padding-top: 64px; }
-    .hero { display: grid; grid-template-columns: 1fr 26rem; grid-template-rows: auto auto 1fr auto; column-gap: 64px; align-items: start; }
+    .page { padding-top: 40px; }
+    .hero { display: grid; grid-template-columns: 1fr 26rem; column-gap: 64px; align-items: start; }
     .who { grid-column: 1 / -1; }
-    .hero-plan { grid-column: 2; grid-row: 2 / 4; margin-top: 28px; }
-    h1 { grid-column: 1; grid-row: 2; font-size: 44px; margin: 28px 0 0; }
-    .hero-side { grid-column: 1; grid-row: 3; margin-top: 20px; }
-    .hero-figure { grid-column: 1 / -1; grid-row: 4; margin-top: 48px; max-width: 44rem; }
-    section { display: grid; grid-template-columns: 18rem 1fr; column-gap: 64px; margin-top: 64px; padding-top: 40px; }
-    section h2 { margin-bottom: 0; }
-    .body { max-width: 40rem; }
-    .foot p { max-width: 40rem; margin-left: calc(18rem + 64px); }
-    .foot p + p { margin-top: 8px; }
+    h1 { grid-column: 1; grid-row: 2; font-size: 44px; margin: 20px 0 0; }
+    .hero-plan { grid-column: 2; grid-row: 2 / 4; margin-top: 24px; }
+    .hero-side { grid-column: 1; grid-row: 3; margin-top: 16px; }
+    section, .account { max-width: 40rem; }
   }
 </style>

@@ -11,7 +11,7 @@ const DIST = process.env.DIST || 'dist';
 
 // Group errors by category so the failure output triages itself instead of
 // dumping a flat list. CI logs become much easier to scan.
-const WORD_BUDGET = 420;
+const WORD_BUDGET = 170;
 const groups = {
   pages: [],
   assets: [],
@@ -81,21 +81,15 @@ must('identity', home.includes('Théo Hermann'), 'canonical name missing from ho
 //     rendered at build time from these files, so a drift means the page
 //     stopped tracking the demo.
 const STATA_META = 'public/data/stata-replay.meta.json';
-const STATA_BASE = 'public/data/stata-baseline.json';
-must('stata_numbers', existsSync(STATA_META) && existsSync(STATA_BASE), `missing ${STATA_META} or ${STATA_BASE}`);
-if (existsSync(STATA_META) && existsSync(STATA_BASE)) {
+must('stata_numbers', existsSync(STATA_META), `missing ${STATA_META}`);
+if (existsSync(STATA_META)) {
   const meta = JSON.parse(readFileSync(STATA_META, 'utf8'));
-  const base = JSON.parse(readFileSync(STATA_BASE, 'utf8'));
-  const lostMetres = Number(meta.lost_window.position_error_median_m).toFixed(1);
   const lostCm = Math.round(meta.lost_window.amcl_reported_sigma_median_m * 100);
+  const lostMetres = Math.round(meta.lost_window.position_error_median_m);
+  const lostS = Math.round(meta.zones_s.lost_end_s - meta.zones_s.lost_start_s);
   for (const want of [
-    `median ${lostMetres} m<`,
-    `median ${lostCm} cm`,
-    `${base.sigma_hindsight.lost}%`,
-    `${base.detectors.lost}%`,
-    `(${base.detectors.healthy}%)`,
-    `${base.detectors_events_starting_in_lost_window}% counting only`,
-    `flagged ${base.lost_by_neither_hindsight}% of the positions it reported while lost`,
+    `within ${lostCm} cm. It was ${lostMetres} m away.`,
+    `Medians over the ${lostS} seconds`,
   ]) must('stata_numbers', home.includes(want), `homepage missing "${want}" (from the Stata sidecars)`);
   // The chart is drawn from stata-series.json; its lost-window median must be the headline's.
   const SERIES = 'public/data/stata-series.json';
@@ -117,7 +111,7 @@ for (const [tell, re] of [['rounded utility class', /class="[^"]*\brounded/], ['
 
 // 5c. word budget above the contact block: a buyer decides in twenty seconds.
 //     Keyed on the contact section id, not on a section list or a literal count.
-//     Prose only: the labels inside the plan and the chart are read as part of
+//     Prose only: the labels inside the plan are read as part of
 //     the picture, and pictures are how the owner asked to cut reading (27 Oct).
 //     Words a reader sees without a tap: a folded <details> counts its summary,
 //     not its body (owner's pick L-4, 30 Oct, folds each example's evidence).
